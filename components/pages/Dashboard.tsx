@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import CrowdSafety from "@/components/dashboard/CrowdSafety";
 import {
   Home,
   Map,
@@ -14,7 +15,9 @@ import {
   Menu,
   X,
   Bell,
-  Shield,
+ Shield,
+ShieldCheck,
+ Users,
 } from 'lucide-react'
 import DashboardHome from '@/components/dashboard/DashboardHome'
 import RiskMap from '@/components/dashboard/RiskMap'
@@ -22,6 +25,7 @@ import VoiceSOS from '@/components/dashboard/VoiceSOS'
 import SafeRoute from '@/components/dashboard/SafeRoute'
 import GovServices from '@/components/dashboard/GovServices'
 import LegalAssistant from '@/components/dashboard/LegalAssistant'
+import GuardianAI from '@/components/dashboard/GuardianAI'
 import Profile from '@/components/dashboard/Profile'
 import { showToast } from '@/components/Toast'
 
@@ -44,15 +48,28 @@ export default function Dashboard() {
     navigate('/login')
   }
 
-  const navItems = [
-    { icon: Home, label: 'Home', path: '/dashboard' },
-    { icon: Map, label: 'Risk Map', path: '/dashboard/risk-map' },
-    { icon: Phone, label: 'SOS', path: '/dashboard/sos' },
-    { icon: Navigation, label: 'Safe Route', path: '/dashboard/safe-route' },
-    { icon: Building2, label: 'Gov Services', path: '/dashboard/gov' },
-    { icon: Scale, label: 'Legal', path: '/dashboard/legal' },
-    { icon: User, label: 'Profile', path: '/dashboard/profile' },
-  ]
+ const navItems = [
+  { icon: Home, label: 'Home', path: '/dashboard' },
+  { icon: Map, label: 'Risk Map', path: '/dashboard/risk-map' },
+{
+  icon: Users,
+  label: "Crowd Safety",
+  path: "/dashboard/crowd",
+},
+  {
+    icon: ShieldCheck,
+    label: 'Guardian AI',
+    path: '/dashboard/guardian',
+  },
+
+  { icon: Phone, label: 'SOS', path: '/dashboard/sos' },
+  { icon: Navigation, label: 'Safe Route', path: '/dashboard/safe-route' },
+
+  { icon: Building2, label: 'Gov Services', path: '/dashboard/gov' },
+  { icon: Scale, label: 'Legal', path: '/dashboard/legal' },
+
+  { icon: User, label: 'Profile', path: '/dashboard/profile' },
+]
 
   const isActive = (path: string) => {
     if (path === '/dashboard') {
@@ -229,6 +246,8 @@ export default function Dashboard() {
             <Route path="/safe-route" element={<SafeRoute user={user} />} />
             <Route path="/gov" element={<GovServices />} />
             <Route path="/legal" element={<LegalAssistant />} />
+            <Route path="/guardian" element={<GuardianAI />} />
+            <Route path="/crowd" element={<CrowdSafety />} />
             <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
           </Routes>
         </div>
