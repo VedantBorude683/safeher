@@ -1,0 +1,119 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: 'Sora', system-ui;
+  --font-sans: 'Inter', system-ui;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+:root {
+  color-scheme: dark;
+  --bg-base: #06060A;
+  --bg-surface: #0E0E16;
+  --bg-elevated: #13131E;
+  --bg-hover: #18182A;
+  --border: #1C1C2E;
+  --border-subtle: #161625;
+  --border-focus: #6D28D9;
+  --primary: #6D28D9;
+  --primary-hover: #5B21B6;
+  --primary-muted: #6D28D918;
+  --accent: #A855F7;
+  --danger: #DC2626;
+  --danger-muted: #DC262615;
+  --success: #10B981;
+  --success-muted: #10B98115;
+  --warning: #F59E0B;
+  --warning-muted: #F59E0B15;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #475569;
+  --text-disabled: #2D2D45;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html {
+    background-color: var(--bg-base);
+  }
+  
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', system-ui;
+  }
+  
+  .font-mono, code {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  input, textarea, select {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border);
+    font-family: 'Inter', system-ui;
+  }
+  
+  input::placeholder, textarea::placeholder {
+    color: var(--text-muted);
+  }
+  
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--bg-base);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--primary)] text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 hover:bg-[var(--primary-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:ring-offset-[var(--bg-base)];
+  }
+  
+  .btn-ghost {
+    @apply border border-[var(--border)] text-[var(--text-primary)] px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 hover:border-[var(--border-focus)] hover:text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)];
+  }
+  
+  .input-base {
+    @apply w-full bg-[var(--bg-surface)] border border-[var(--border)] rounded-md px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] transition-colors duration-150 focus:border-[var(--border-focus)] focus:ring-1 focus:ring-[var(--primary-muted)];
+  }
+  
+  .card-base {
+    @apply bg-[var(--bg-surface)] border border-[var(--border)] rounded-[10px] transition-all duration-150 hover:border-[var(--border-focus)];
+  }
+  
+  .card-elevated {
+    @apply bg-[var(--bg-elevated)] border border-[var(--border)] rounded-[10px];
+  }
+}
+
+@layer utilities {
+  .shadow-sm-dark {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+  
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:ring-offset-[var(--bg-base)];
+  }
+}
