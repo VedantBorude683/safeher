@@ -53,8 +53,8 @@ export default function Login() {
         email: 'demo@safeher.ai',
         emergencyContacts: [
           {
-            name: 'Rahul Kumar',
-            phone: '+91 87654 32109',
+            name: 'vedant',
+            phone: '+91 93590 96377',
           },
         ],
       }
