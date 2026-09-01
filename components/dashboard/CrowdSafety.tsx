@@ -127,7 +127,7 @@ export default function CrowdSafety() {
             </span>
             <ul className="space-y-1.5 text-xs text-[var(--text-secondary)]">
               <li>• Prefer main commercial boulevard over isolated transit connectors</li>
-              <li>• Keep Guardian AI background monitoring armed while in transit</li>
+              <li>• Keep the Risk Engine monitoring armed while in transit</li>
               <li>• Share live transit link with contacts if moving after 10:00 PM</li>
             </ul>
           </div>

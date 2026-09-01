@@ -93,13 +93,13 @@ export default function Profile({ user, setUser }: { user: any; setUser: (user: 
             Personal Safety Profile
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1.5 max-w-xl">
-            Configure registered emergency dispatch contacts, account security, and Guardian AI sensitivity.
+            Configure registered emergency dispatch contacts, account security, and Risk Engine sensitivity.
           </p>
         </div>
 
         <div className="p-4 rounded-xl bg-[var(--accent-ghost)] border border-[var(--accent-light)] text-left sm:text-right">
           <span className="text-[11px] font-semibold text-[var(--primary)] uppercase tracking-wider block">
-            Guardian Tier
+            Risk Tier
           </span>
           <span className="text-base font-bold text-[var(--primary)] mt-0.5 block">
             ✓ Complete Protection Active

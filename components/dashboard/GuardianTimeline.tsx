@@ -30,7 +30,7 @@ const events = [
   {
     time: '06:34 PM',
     title: 'Silent Safety Query Sent',
-    desc: 'Guardian AI pinged discreet prompt: "Confirm safety state".',
+    desc: 'Risk Engine sent a discreet prompt: "Confirm safety state".',
     icon: ShieldAlert,
     color: 'text-[var(--primary)]',
     bg: 'bg-teal-50 border-teal-200',
@@ -54,7 +54,7 @@ export default function GuardianTimeline() {
             Event Log
           </span>
           <h2 className="text-xl font-bold text-[var(--text-primary)] mt-0.5">
-            Guardian AI Activity Timeline
+            Risk Engine Activity Timeline
           </h2>
         </div>
         <span className="text-xs font-semibold text-[var(--text-muted)] font-mono">Live Telemetry</span>

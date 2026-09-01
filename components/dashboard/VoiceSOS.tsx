@@ -152,6 +152,7 @@ export default function VoiceSOS({ user }: { user: any }) {
 
             timestamp:
               currentLocation.timestamp,
+            auto_detected: false,
           }),
         }
       )

@@ -1,293 +1,285 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertCircle, CheckCircle2, Navigation, Share2, ArrowRight, ShieldCheck, MapPin } from 'lucide-react'
+import { Navigation, MapPin, Clock3, ShieldCheck, AlertTriangle, LocateFixed, ArrowRight } from 'lucide-react'
 import { showToast } from '@/components/Toast'
 
-const locations = [
-  'Koregaon Park (Night)',
-  'FC Road (Evening)',
-  'Hinjewadi IT Park (Day)',
-  'Hadapsar (Night)',
-  'Kothrud (Evening)',
-  'Shivajinagar (Night)',
-  'Viman Nagar (Evening)',
-  'Katraj (Night)',
-]
-
-const routeData: { [key: string]: any } = {
-  'Koregaon Park (Night)-FC Road (Evening)': {
-    shortest: {
-      distance: 2.1,
-      time: 9,
-      risk: 'HIGH',
-      icon: '🔴',
-      issues: ['Isolated side alleyways', 'Dark street lighting stretches', 'Zero CCTV coverage'],
-    },
-    safe: {
-      distance: 3.4,
-      time: 14,
-      risk: 'LOW',
-      icon: '🟢',
-      features: ['Passes Koregaon Police Chowki', 'Continuous high-illumination streetlights', 'Full public CCTV coverage', 'Busy commercial district corridor'],
-    },
-  },
-  'FC Road (Evening)-Hadapsar (Night)': {
-    shortest: {
-      distance: 5.2,
-      time: 18,
-      risk: 'HIGH',
-      icon: '🔴',
-      issues: ['Unlit industrial service road', 'Sparse evening pedestrian traffic', 'Zero emergency callboxes'],
-    },
-    safe: {
-      distance: 7.1,
-      time: 24,
-      risk: 'MODERATE',
-      icon: '🟡',
-      features: ['Main highway arterial corridor', 'Active commercial lighting', 'Regular police beat patrolling', 'Well-lit petrol pump hubs'],
-    },
-  },
+const defaultForm = {
+  origin: '',
+  destination: '',
+  timeOfDay: '21:00',
+  activeIncident: '',
 }
 
 export default function SafeRoute({ user }: { user: any }) {
-  const [from, setFrom] = useState('')
-  const [to, setTo] = useState('')
-  const [routes, setRoutes] = useState<any>(null)
+  const [form, setForm] = useState(defaultForm)
+  const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = event.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleFindRoute = async () => {
-    if (!from || !to) {
+    if (!form.origin || !form.destination) {
       showToast('Please select both starting point and destination', 'error')
       return
     }
 
     setLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    setError('')
 
-    const key = `${from}-${to}`
-    const data = routeData[key] || {
-      shortest: {
-        distance: 2.1,
-        time: 9,
-        risk: 'HIGH',
-        icon: '🔴',
-        issues: ['Isolated side street section', 'Poor night-time lighting', 'No CCTV cameras'],
-      },
-      safe: {
-        distance: 3.4,
-        time: 14,
-        risk: 'LOW',
-        icon: '🟢',
-        features: ['Near Police Chowki Station', 'Well-lit main avenue', 'CCTV monitoring coverage', 'Active storefront corridor'],
-      },
+    try {
+      const response = await fetch('http://localhost:8080/api/routes/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          origin: form.origin,
+          destination: form.destination,
+          timeOfDay: form.timeOfDay,
+          activeIncident: form.activeIncident || undefined,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data?.message || 'Unable to evaluate route risk')
+      }
+
+      setResult(data)
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || 'Unable to compare routes right now.')
+    } finally {
+      setLoading(false)
     }
-
-    setRoutes(data)
-    setLoading(false)
-  }
-
-  const handleShare = () => {
-    showToast('Live safe route tracker link sent to emergency contacts', 'success')
   }
 
   return (
     <div className="space-y-6 pb-16">
-      {/* HEADER */}
       <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-            Route Safety Optimizer
+            Route Risk Engine
           </span>
           <h1 className="text-3xl font-serif text-[var(--text-primary)] mt-1">
             Safe Route Finder
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1.5 max-w-xl">
-            Calculates navigation based on street lighting, crowd frequency, and police beat proximity — not just shortest distance.
+            Dynamic route comparison using time of day, lighting, crowd density, and live incident context.
           </p>
         </div>
 
         <div className="p-4 rounded-xl bg-[var(--accent-ghost)] border border-[var(--accent-light)] text-left sm:text-right">
           <span className="text-[11px] font-semibold text-[var(--primary)] uppercase tracking-wider block">
-            Navigation Mode
+            Live Geo Feed
           </span>
           <span className="text-base font-bold text-[var(--primary)] mt-0.5 block">
-            ✓ Maximum Safety
+            ✓ Live route monitor
           </span>
         </div>
       </div>
 
-      {/* LOCATION SELECTION PANEL */}
-      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-6">
-        <h2 className="text-base font-bold text-[var(--text-primary)]">Configure Journey Waypoints</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
-              Departure Point
-            </label>
-            <select
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              className="w-full bg-[var(--bg-base)] border border-[var(--border)] rounded-xl px-4 py-3 text-xs text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none transition-colors"
-            >
-              <option value="">Choose starting point...</option>
-              {locations.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
+      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card space-y-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-[var(--text-primary)]">Configure journey path</h2>
+            <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Optimized routing</span>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
-              Destination Point
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block text-sm font-medium text-[var(--text-primary)]">
+              Origin
+              <input
+                type="text"
+                name="origin"
+                value={form.origin}
+                onChange={handleChange}
+                placeholder="e.g. Koregaon Park"
+                className="mt-2 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-base)] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none"
+              />
             </label>
-            <select
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              className="w-full bg-[var(--bg-base)] border border-[var(--border)] rounded-xl px-4 py-3 text-xs text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none transition-colors"
-            >
-              <option value="">Choose destination point...</option>
-              {locations.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
+
+            <label className="block text-sm font-medium text-[var(--text-primary)]">
+              Destination
+              <input
+                type="text"
+                name="destination"
+                value={form.destination}
+                onChange={handleChange}
+                placeholder="e.g. FC Road"
+                className="mt-2 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-base)] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none"
+              />
+            </label>
+
+            <label className="block text-sm font-medium text-[var(--text-primary)]">
+              Time of Day
+              <input
+                type="time"
+                name="timeOfDay"
+                value={form.timeOfDay}
+                onChange={handleChange}
+                className="mt-2 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-base)] px-3 py-2.5 text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none"
+              />
+            </label>
+
+            <label className="block text-sm font-medium text-[var(--text-primary)]">
+              Active Incident
+              <input
+                type="text"
+                name="activeIncident"
+                value={form.activeIncident}
+                onChange={handleChange}
+                placeholder="Optional"
+                className="mt-2 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-base)] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none"
+              />
+            </label>
           </div>
+
+          <button
+            onClick={handleFindRoute}
+            disabled={loading || !form.origin || !form.destination}
+            className="w-full py-3.5 rounded-xl bg-[var(--primary)] text-white text-sm font-semibold transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? 'Calculating route risk...' : 'Compare routes'}
+          </button>
         </div>
 
-        <button
-          onClick={handleFindRoute}
-          disabled={loading || !from || !to}
-          className="w-full py-3.5 bg-[var(--primary)] hover:opacity-90 text-white rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Navigation size={16} />
-          <span>{loading ? 'Analyzing Corridor Safety...' : 'Calculate Safest Corridor'}</span>
-        </button>
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-bold text-[var(--text-primary)]">Live geo map</h2>
+            <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-1 text-[10px] font-bold text-emerald-700">
+              online
+            </span>
+          </div>
+
+          <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-base)] p-4 h-[260px]">
+            <div className="absolute inset-0 opacity-40" style={{
+              backgroundImage: 'linear-gradient(rgba(148,163,184,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.18) 1px, transparent 1px)',
+              backgroundSize: '24px 24px'
+            }} />
+
+            <div className="absolute left-[18%] top-[28%] h-3.5 w-3.5 rounded-full bg-[var(--primary)] shadow-[0_0_0_8px_rgba(0,120,120,0.12)]" />
+            <div className="absolute right-[22%] bottom-[26%] h-3.5 w-3.5 rounded-full bg-emerald-500 shadow-[0_0_0_8px_rgba(16,185,129,0.12)]" />
+            <div className="absolute left-[22%] top-[30%] right-[28%] bottom-[28%] rounded-[30%] border-2 border-dashed border-[var(--primary)] opacity-60" />
+            <svg viewBox="0 0 400 260" className="absolute inset-0 h-full w-full">
+              <path d="M 60 70 C 120 55, 150 80, 180 105 S 260 90, 290 130 S 330 175, 350 180" fill="none" stroke="#0f172a" strokeWidth="3" strokeDasharray="8 8" opacity="0.7" />
+              <path d="M 60 70 C 120 120, 140 150, 170 170 S 240 200, 290 130 S 340 95, 350 180" fill="none" stroke="#10b981" strokeWidth="4" opacity="0.9" />
+            </svg>
+
+            <div className="absolute left-4 top-4 rounded-xl bg-white/90 px-2.5 py-1.5 text-[10px] font-semibold text-[var(--text-primary)] border border-[var(--border)]">
+              Current location
+            </div>
+            <div className="absolute right-4 bottom-4 rounded-xl bg-white/90 px-2.5 py-1.5 text-[10px] font-semibold text-[var(--text-primary)] border border-[var(--border)]">
+              Destination
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl bg-[var(--bg-base)] border border-[var(--border)] p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Live tracker</p>
+              <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">On-route monitoring</p>
+            </div>
+            <div className="rounded-xl bg-[var(--bg-base)] border border-[var(--border)] p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Optimized path</p>
+              <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">Main corridors selected</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* COMPARISON RESULTS */}
-      {routes && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* RECOMMENDED SAFE ROUTE */}
-          <div className="bg-white border-2 border-[var(--primary)] rounded-2xl p-6 sm:p-8 shadow-card relative flex flex-col justify-between space-y-6">
-            <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-[var(--primary)] text-white text-[11px] font-bold shadow-xs">
-              ★ Recommended Safe Path
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <span className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider">
-                    Optimized Safe Path
-                  </span>
-                  <h3 className="text-xl font-bold text-[var(--text-primary)] mt-0.5">
-                    Safe Corridor Navigation
-                  </h3>
-                </div>
-                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  {routes.safe.risk} Risk
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
-                  <span className="text-[11px] text-[var(--text-muted)] block">Distance</span>
-                  <span className="text-xl font-bold text-[var(--text-primary)] mt-1 block">
-                    {routes.safe.distance} km
-                  </span>
-                </div>
-                <div className="p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
-                  <span className="text-[11px] text-[var(--text-muted)] block">Estimated Time</span>
-                  <span className="text-xl font-bold text-[var(--text-primary)] mt-1 block">
-                    {routes.safe.time} min
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[var(--accent-ghost)] border border-[var(--accent-light)] space-y-2">
-                <span className="text-xs font-bold text-[var(--primary)] block">Verified Safety Attributes</span>
-                <div className="space-y-1.5">
-                  {routes.safe.features.map((feature: string, index: number) => (
-                    <div key={index} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                      <CheckCircle2 size={14} className="text-[var(--primary)] shrink-0" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
-              <button
-                onClick={() => showToast('Turn-by-turn safe navigation started', 'success')}
-                className="w-full sm:flex-1 py-3 bg-[var(--primary)] hover:opacity-90 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
-              >
-                <Navigation size={15} />
-                <span>Start Safe Navigation</span>
-              </button>
-              <button
-                onClick={handleShare}
-                className="w-full sm:w-auto px-4 py-3 bg-white hover:bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl text-xs font-semibold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5"
-              >
-                <Share2 size={15} />
-                <span>Share Route</span>
-              </button>
-            </div>
-          </div>
-
-          {/* SHORTEST RISKY ROUTE */}
-          <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card flex flex-col justify-between space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                    Standard Quickest Path
-                  </span>
-                  <h3 className="text-xl font-bold text-[var(--text-primary)] mt-0.5">
-                    Shortest Road Route
-                  </h3>
-                </div>
-                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
-                  {routes.shortest.risk} Risk
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
-                  <span className="text-[11px] text-[var(--text-muted)] block">Distance</span>
-                  <span className="text-xl font-bold text-[var(--text-primary)] mt-1 block">
-                    {routes.shortest.distance} km
-                  </span>
-                </div>
-                <div className="p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
-                  <span className="text-[11px] text-[var(--text-muted)] block">Estimated Time</span>
-                  <span className="text-xl font-bold text-[var(--text-primary)] mt-1 block">
-                    {routes.shortest.time} min
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-red-50/70 border border-red-200 space-y-2">
-                <span className="text-xs font-bold text-red-700 block">Identified Hazard Flags</span>
-                <div className="space-y-1.5">
-                  {routes.shortest.issues.map((issue: string, index: number) => (
-                    <div key={index} className="flex items-center gap-2 text-xs text-red-800">
-                      <AlertCircle size={14} className="text-red-600 shrink-0" />
-                      <span>{issue}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <p className="text-[11px] text-[var(--text-muted)] text-center">
-              Not recommended during evening or nighttime transit.
-            </p>
-          </div>
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
         </div>
+      )}
+
+      {result && (
+        <>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Shortest route</span>
+                  <h3 className="mt-1 text-xl font-bold text-[var(--text-primary)]">{result.shortest_route.name}</h3>
+                </div>
+                <span className="rounded-full bg-slate-800 px-2.5 py-1 text-[11px] font-bold text-white">
+                  {result.shortest_route.risk_score} risk
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-[var(--bg-base)] border border-[var(--border)] p-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">ETA</span>
+                  <p className="mt-2 text-2xl font-bold text-[var(--text-primary)]">{result.shortest_route.eta_minutes} min</p>
+                </div>
+                <div className="rounded-xl bg-[var(--bg-base)] border border-[var(--border)] p-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Risk</span>
+                  <p className="mt-2 text-2xl font-bold text-[var(--text-primary)]">{result.shortest_route.risk_score}</p>
+                </div>
+              </div>
+
+              <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
+                {result.shortest_route.key_characteristics.map((item: string) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-slate-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 shadow-card space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">Safest route</span>
+                  <h3 className="mt-1 text-xl font-bold text-emerald-900">{result.safest_route.name}</h3>
+                </div>
+                <span className="rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white">
+                  {result.tradeoff_summary.risk_reduction_percentage}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-white border border-emerald-200 p-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">ETA</span>
+                  <p className="mt-2 text-2xl font-bold text-emerald-900">{result.safest_route.eta_minutes} min</p>
+                </div>
+                <div className="rounded-xl bg-white border border-emerald-200 p-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">Risk</span>
+                  <p className="mt-2 text-2xl font-bold text-emerald-900">{result.safest_route.risk_score}</p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-3">
+                <div className="flex items-center justify-between text-sm text-emerald-900">
+                  <span className="flex items-center gap-2"><Clock3 size={14} /> Time delta</span>
+                  <strong>{result.tradeoff_summary.time_delta}</strong>
+                </div>
+              </div>
+
+              <ul className="space-y-2 text-sm text-emerald-900">
+                {result.safest_route.key_characteristics.map((item: string) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card">
+            <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+              <ShieldCheck size={16} className="text-[var(--primary)]" />
+              Why this path is safer
+            </div>
+            <p className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">{result.justification}</p>
+          </div>
+        </>
       )}
     </div>
   )

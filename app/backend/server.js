@@ -82,6 +82,107 @@ async function sendEmergencySMS({
 |--------------------------------------------------------------------------
 */
 
+function parseTimeToMinutes(timeString) {
+  if (!timeString || typeof timeString !== 'string') return 0;
+
+  const [hours, minutes] = timeString.split(':').map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return 0;
+
+  return hours * 60 + minutes;
+}
+
+function buildRouteEvaluation(payload) {
+  const origin = payload.origin || 'Origin';
+  const destination = payload.destination || 'Destination';
+  const timeOfDay = payload.timeOfDay || '12:00';
+  const activeIncident = (payload.activeIncident || '').trim();
+
+  const timeMinutes = parseTimeToMinutes(timeOfDay);
+  const isNight = timeMinutes >= 20 * 60 || timeMinutes <= 6 * 60;
+
+  const shortestBaseRisk = 62;
+  const safestBaseRisk = 28;
+
+  let shortestRisk = shortestBaseRisk;
+  let safestRisk = safestBaseRisk;
+
+  if (isNight) {
+    shortestRisk += 22;
+    safestRisk += 8;
+  }
+
+  if (activeIncident) {
+    shortestRisk += 40;
+  }
+
+  shortestRisk = Math.min(96, shortestRisk);
+  safestRisk = Math.min(82, safestRisk);
+
+  const shortestEta = 12 + (isNight ? 3 : 0) + (activeIncident ? 2 : 0);
+  const safestEta = 16 + (isNight ? 1 : 0);
+
+  const riskReduction = Math.max(
+    25,
+    Math.round(((shortestRisk - safestRisk) / shortestRisk) * 100)
+  );
+
+  const timeDelta = safestEta - shortestEta;
+  const routeAName = `Via ${origin.split(' ')[0] || 'Main'} Shortcut`;
+  const routeBName = `Via ${destination.split(' ')[0] || 'Central'} Avenue`;
+
+  const justification = activeIncident
+    ? `Route B is safer because it follows a more populated arterial corridor, avoids isolated side streets, and stays farther from the reported incident area near ${activeIncident}.`
+    : isNight
+      ? 'Route B is safer because it prioritizes well-lit major avenues and commercial corridors, reducing exposure to isolated backstreets after dark.'
+      : 'Route B is safer because it keeps you on a primary corridor with better foot traffic, lighting, and emergency access compared with the direct shortcut.';
+
+  return {
+    shortest_route: {
+      name: routeAName,
+      eta_minutes: shortestEta,
+      risk_score: shortestRisk,
+      key_characteristics: ['Direct path', 'Narrow side streets', 'Lower commercial density'],
+    },
+    safest_route: {
+      name: routeBName,
+      eta_minutes: safestEta,
+      risk_score: safestRisk,
+      key_characteristics: ['Major arterial road', 'High street-level activity', 'Passes 24/7 emergency points'],
+    },
+    tradeoff_summary: {
+      time_delta: `${timeDelta >= 0 ? '+' : ''}${timeDelta} mins`,
+      risk_reduction_percentage: `${riskReduction}% lower risk`,
+    },
+    justification,
+  };
+}
+
+app.post('/api/routes/evaluate', (req, res) => {
+  try {
+    const { origin, destination, timeOfDay, activeIncident } = req.body || {};
+
+    if (!origin || !destination || !timeOfDay) {
+      return res.status(400).json({
+        message: 'origin, destination, and timeOfDay are required',
+      });
+    }
+
+    const result = buildRouteEvaluation({
+      origin,
+      destination,
+      timeOfDay,
+      activeIncident,
+    });
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Unable to evaluate route risk',
+      error: error.message,
+    });
+  }
+});
+
 app.post("/api/sos", async (req, res) => {
   try {
     const {
@@ -91,6 +192,7 @@ app.post("/api/sos", async (req, res) => {
       locationUrl,
       contacts,
       timestamp,
+      auto_detected,
     } = req.body;
 
     console.log("\n====================================");
@@ -106,6 +208,7 @@ app.post("/api/sos", async (req, res) => {
     console.log("🗺️ Location:", locationUrl);
 
     console.log("📞 Contacts:", contacts);
+    console.log("🤖 Auto-detected:", auto_detected === true ? "yes" : "no");
 
     /*
     |--------------------------------------------------------------------------
@@ -133,6 +236,7 @@ app.post("/api/sos", async (req, res) => {
     const message =
       `🚨 SAFEHER SOS ALERT!\n\n` +
       `${user?.name || "SafeHer user"} needs help.\n\n` +
+      `${auto_detected ? "🤖 Auto-detected risk escalation triggered silently.\n" : "🧭 Manual SOS trigger confirmed by user.\n"}` +
       `📍 Current location:\n` +
       `${locationUrl}\n\n` +
       `Latitude: ${latitude}\n` +
@@ -176,6 +280,7 @@ app.post("/api/sos", async (req, res) => {
         locationUrl,
         contacts,
         timestamp,
+        auto_detected,
       },
 
       sms: {

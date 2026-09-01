@@ -180,13 +180,13 @@ export default function DashboardHome({ user }: { user: any }) {
           </button>
         </div>
 
-        {/* Guardian AI Engine Widget */}
+        {/* Risk Engine Widget */}
         <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Automated Shield</span>
-                <h3 className="text-xl font-bold text-[var(--text-primary)] mt-1">Guardian AI</h3>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mt-1">Risk Engine</h3>
               </div>
               <button
                 onClick={() => setGuardianActive(!guardianActive)}
@@ -221,7 +221,7 @@ export default function DashboardHome({ user }: { user: any }) {
             onClick={() => navigate('/dashboard/guardian')}
             className="mt-6 w-full py-2.5 bg-white hover:bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl text-xs font-semibold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5"
           >
-            <span>Configure Guardian Settings</span>
+            <span>Configure Risk Engine Settings</span>
             <ArrowRight size={14} />
           </button>
         </div>

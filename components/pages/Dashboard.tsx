@@ -14,9 +14,10 @@ import SafeRoute from '@/components/dashboard/SafeRoute'
 import GovServices from '@/components/dashboard/GovServices'
 import LegalAssistant from '@/components/dashboard/LegalAssistant'
 import GuardianAI from '@/components/dashboard/GuardianAI'
-import CrowdSafety from '@/components/dashboard/CrowdSafety'
 import Profile from '@/components/dashboard/Profile'
 import { showToast } from '@/components/Toast'
+import useRiskEngine from '@/hooks/useRiskEngine'
+import RiskModals from '@/components/dashboard/RiskModals'
 
 const NAV_SECTIONS = [
   {
@@ -24,8 +25,7 @@ const NAV_SECTIONS = [
     items: [
       { icon: Home,        label: 'Home',         path: '/dashboard' },
       { icon: Map,         label: 'Risk Map',     path: '/dashboard/risk-map' },
-      { icon: Users,       label: 'Crowd Safety', path: '/dashboard/crowd' },
-      { icon: ShieldCheck, label: 'Guardian AI',  path: '/dashboard/guardian' },
+      { icon: ShieldCheck, label: 'Risk Engine',  path: '/dashboard/guardian' },
     ],
   },
   {
@@ -44,6 +44,16 @@ export default function Dashboard() {
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
+
+  const {
+    riskState,
+    telemetryData,
+    permissionsGranted,
+    permissionError,
+    requestPermissions,
+    resetRiskState,
+    escalateToCritical
+  } = useRiskEngine(true)
 
   useEffect(() => {
     const userStr = localStorage.getItem('safeherUser')
@@ -215,14 +225,33 @@ export default function Dashboard() {
 
         {/* Topbar Actions */}
         <div className="flex items-center gap-3">
-          {/* Guardian Live Status */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-ghost)] border border-[var(--accent-light)] text-[var(--primary)] text-xs font-medium">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--primary)]"></span>
-            </span>
-            <span>Guardian Protection Active</span>
-          </div>
+          {!permissionsGranted ? (
+            <button
+              onClick={requestPermissions}
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors"
+            >
+              Enable Risk Engine
+            </button>
+          ) : (
+            <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border ${
+              riskState.tier === 'Normal' ? 'bg-[var(--accent-ghost)] border-[var(--accent-light)] text-[var(--primary)]' :
+              riskState.tier === 'Elevated' ? 'bg-amber-50 border-amber-200 text-amber-700' :
+              'bg-red-50 border-red-200 text-red-700'
+            }`}>
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                  riskState.tier === 'Normal' ? 'bg-[var(--primary)]' :
+                  riskState.tier === 'Elevated' ? 'bg-amber-500' : 'bg-red-500'
+                }`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                  riskState.tier === 'Normal' ? 'bg-[var(--primary)]' :
+                  riskState.tier === 'Elevated' ? 'bg-amber-500' : 'bg-red-500'
+                }`}></span>
+              </span>
+              <span>{telemetryData.monitoringStatus}</span>
+              <span className="text-[10px] opacity-80">• {riskState.tier}</span>
+            </div>
+          )}
 
           {/* Quick SOS Trigger Button */}
           <button
@@ -311,6 +340,54 @@ export default function Dashboard() {
         </div>
       )}
 
+      {!permissionsGranted && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px] p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-white p-6 shadow-2xl">
+            <div className="mb-5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Consent required</span>
+              <h2 className="mt-2 text-2xl font-serif text-[var(--text-primary)]">Enable the Risk Engine</h2>
+              <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
+                SafeHer uses motion, location, and microphone data only while this tab is active to detect risk patterns and keep silent check-ins accurate.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                ['Motion + device tilt', 'Detect sudden jerk, fall patterns, and stillness after motion.'],
+                ['Location tracking', 'Monitor route deviation, erratic stop patterns, and live positioning.'],
+                ['Microphone analysis', 'Detect short volume spikes followed by silence without storing continuous audio.'],
+                ['Connectivity awareness', 'Flag signal loss as a risk multiplier and improve emergency confidence.'],
+              ].map(([title, body]) => (
+                <div key={title} className="rounded-xl border border-[var(--border)] bg-[var(--bg-base)] p-3.5">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">{title}</p>
+                      <p className="text-xs text-[var(--text-secondary)] mt-0.5">{body}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={requestPermissions}
+                className="flex-1 rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95"
+              >
+                Allow monitoring
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-1 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-semibold text-[var(--text-primary)]"
+              >
+                Continue without sensors
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ────────────────────────────────────────────────────────
           MAIN ROUTE CONTENT WRAPPER
       ──────────────────────────────────────────────────────── */}
@@ -324,7 +401,6 @@ export default function Dashboard() {
             <Route path="/gov" element={<GovServices />} />
             <Route path="/legal" element={<LegalAssistant />} />
             <Route path="/guardian" element={<GuardianAI />} />
-            <Route path="/crowd" element={<CrowdSafety />} />
             <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
           </Routes>
         </div>
@@ -360,6 +436,14 @@ export default function Dashboard() {
           )
         })}
       </nav>
+
+      <RiskModals
+        user={user}
+        riskState={riskState}
+        telemetryData={telemetryData}
+        onDismiss={resetRiskState}
+        onEscalateToCritical={escalateToCritical}
+      />
     </div>
   )
 }

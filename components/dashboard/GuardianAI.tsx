@@ -6,6 +6,7 @@ import SensorPanel from './SensorPanel'
 import AIRecommendation from './AIRecommendation'
 import CyberSafetyScanner from './CyberSafetyScanner'
 import FakeLinkDetector from './FakeLinkDetector'
+import useRiskEngine from '@/hooks/useRiskEngine'
 import {
   Shield, Activity, MapPin, Phone, AlertTriangle,
   Mic, CheckCircle2, Radio,
@@ -13,6 +14,7 @@ import {
 
 export default function GuardianAI() {
   const [guardian, setGuardian] = useState(true)
+  const { telemetryData, permissionsGranted } = useRiskEngine(true)
 
   return (
     <div className="space-y-8 pb-16">
@@ -20,13 +22,13 @@ export default function GuardianAI() {
       <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-            Autonomous Protection Engine
+            Unified Safety Intelligence
           </span>
           <h1 className="text-3xl font-serif text-[var(--text-primary)] mt-1">
-            Guardian AI Command Center
+            Risk Engine Command Center
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1.5 max-w-xl">
-            Continuously monitors sensor telemetry, route trajectory, and ambient risk triggers in the background.
+            Merges environmental risk, route behavior, and device telemetry into a single foreground-only alert pipeline.
           </p>
         </div>
 
@@ -39,7 +41,7 @@ export default function GuardianAI() {
           }`}
         >
           <span className={`w-2 h-2 rounded-full ${guardian ? 'bg-white animate-ping' : 'bg-gray-400'}`}></span>
-          <span>{guardian ? 'Guardian Armed' : 'Guardian Paused'}</span>
+          <span>{guardian ? 'Risk Engine Active' : 'Monitoring Paused'}</span>
         </button>
       </div>
 
@@ -100,7 +102,7 @@ export default function GuardianAI() {
       </div>
 
       {/* LIVE SENSORS & AI ANALYSIS */}
-      <SensorPanel />
+      <SensorPanel telemetryData={telemetryData} permissionsGranted={permissionsGranted} />
       <AIRecommendation />
       <GuardianTimeline />
 
@@ -120,7 +122,7 @@ export default function GuardianAI() {
             Autonomous Emergency Escalation Workflow
           </h2>
           <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Guardian AI handles escalation in sequenced tiers if user is incapacitated or in urgent distress.
+            The Risk Engine handles escalation in sequenced tiers if the user is incapacitated or in urgent distress.
           </p>
         </div>
 
