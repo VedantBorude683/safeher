@@ -1,127 +1,84 @@
 'use client'
 
-import {
-  Activity,
-  MapPin,
-  ShieldAlert,
-  Siren,
-  CheckCircle2,
-} from "lucide-react"
+import { Activity, MapPin, ShieldAlert, Siren, CheckCircle2 } from 'lucide-react'
 
 const events = [
   {
-    time: "06:30 PM",
-    title: "Walking Normally",
-    desc: "Motion sensor detected normal movement.",
-    color: "text-green-400",
+    time: '06:30 PM',
+    title: 'Normal Transit Pattern',
+    desc: 'Accelerometer detected steady walking pace along verified corridor.',
     icon: CheckCircle2,
+    color: 'text-emerald-700',
+    bg: 'bg-emerald-50 border-emerald-200',
   },
   {
-    time: "06:32 PM",
-    title: "Entered Medium Risk Area",
-    desc: "AI detected a higher-risk zone nearby.",
-    color: "text-yellow-400",
+    time: '06:32 PM',
+    title: 'Entered Caution Sector',
+    desc: 'AI geofencing identified transition into sector with reduced illumination.',
     icon: MapPin,
+    color: 'text-amber-700',
+    bg: 'bg-amber-50 border-amber-200',
   },
   {
-    time: "06:33 PM",
-    title: "Motion Stopped",
-    desc: "No movement detected for 45 seconds.",
-    color: "text-orange-400",
+    time: '06:33 PM',
+    title: 'Motion Pause Detected',
+    desc: 'Stationary pause of 45 seconds registered in caution corridor.',
     icon: Activity,
+    color: 'text-amber-700',
+    bg: 'bg-amber-50 border-amber-200',
   },
   {
-    time: "06:34 PM",
-    title: "Voice Check Triggered",
-    desc: 'Guardian AI asked "Are you safe?"',
-    color: "text-blue-400",
+    time: '06:34 PM',
+    title: 'Silent Safety Query Sent',
+    desc: 'Guardian AI pinged discreet prompt: "Confirm safety state".',
     icon: ShieldAlert,
+    color: 'text-[var(--primary)]',
+    bg: 'bg-teal-50 border-teal-200',
   },
   {
-    time: "06:35 PM",
-    title: "Emergency SOS Ready",
-    desc: "Emergency contacts prepared for alert.",
-    color: "text-red-400",
+    time: '06:35 PM',
+    title: 'Standby Status Verified',
+    desc: 'User confirmed safe status. Normal tracking resumed.',
     icon: Siren,
+    color: 'text-emerald-700',
+    bg: 'bg-emerald-50 border-emerald-200',
   },
 ]
 
 export default function GuardianTimeline() {
   return (
-    <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-3xl p-8">
-
-      <div className="flex items-center gap-3 mb-8">
-
-        <Activity className="text-green-400" size={30} />
-
+    <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <p className="uppercase tracking-[0.3em] text-xs text-gray-400">
-            Guardian AI
-          </p>
-
-          <h2 className="text-3xl font-bold">
-            Live Timeline
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            Event Log
+          </span>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mt-0.5">
+            Guardian AI Activity Timeline
           </h2>
         </div>
-
+        <span className="text-xs font-semibold text-[var(--text-muted)] font-mono">Live Telemetry</span>
       </div>
 
-      <div className="relative ml-5">
-
-        <div className="absolute left-4 top-0 bottom-0 w-[2px] bg-purple-700"></div>
-
-        <div className="space-y-10">
-
-          {events.map((event, index) => {
-
-            const Icon = event.icon
-
-            return (
-
-              <div
-                key={index}
-                className="relative flex gap-6"
-              >
-
-                <div className="relative z-10">
-
-                  <div className="w-8 h-8 rounded-full bg-[var(--bg-base)] border-2 border-purple-600 flex items-center justify-center">
-
-                    <Icon
-                      size={16}
-                      className={event.color}
-                    />
-
-                  </div>
-
-                </div>
-
-                <div className="flex-1">
-
-                  <p className="text-xs text-gray-500 mb-1">
-                    {event.time}
-                  </p>
-
-                  <h3 className={`font-bold text-lg ${event.color}`}>
-                    {event.title}
-                  </h3>
-
-                  <p className="text-gray-400 mt-1">
-                    {event.desc}
-                  </p>
-
-                </div>
-
+      <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[var(--border)]">
+        {events.map((event, index) => {
+          const Icon = event.icon
+          return (
+            <div key={index} className="relative flex items-start gap-4">
+              <div className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 -ml-5 z-10 bg-white ${event.color}`}>
+                <Icon size={13} />
               </div>
-
-            )
-
-          })}
-
-        </div>
-
+              <div className="flex-1 p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h4 className="text-xs font-bold text-[var(--text-primary)]">{event.title}</h4>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">{event.desc}</p>
+                </div>
+                <span className="text-[10px] font-mono text-[var(--text-muted)] shrink-0">{event.time}</span>
+              </div>
+            </div>
+          )
+        })}
       </div>
-
     </div>
   )
 }

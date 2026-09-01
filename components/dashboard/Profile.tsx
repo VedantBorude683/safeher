@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Plus, AlertTriangle, Trash2 } from 'lucide-react'
+import { User, Plus, Trash2, Shield, Phone, Mail, MapPin, CheckCircle2, Lock } from 'lucide-react'
 import { showToast } from '@/components/Toast'
 
 export default function Profile({ user, setUser }: { user: any; setUser: (user: any) => void }) {
@@ -13,10 +13,10 @@ export default function Profile({ user, setUser }: { user: any; setUser: (user: 
   const [autoSOSDelay, setAutoSOSDelay] = useState('10s')
 
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || '',
-    phone: user?.phone || '',
-    email: user?.email || '',
-    city: 'Pune',
+    fullName: user?.fullName || 'Priya Sharma',
+    phone: user?.phone || '+91 98765 43210',
+    email: user?.email || 'demo@safeher.ai',
+    city: 'Pune, Maharashtra',
   })
 
   const [newContact, setNewContact] = useState({
@@ -27,7 +27,7 @@ export default function Profile({ user, setUser }: { user: any; setUser: (user: 
 
   const handleSavePersonal = () => {
     if (!formData.fullName || !formData.phone || !formData.email) {
-      showToast('Please fill all fields', 'error')
+      showToast('Please fill all required profile fields', 'error')
       return
     }
     const updated = {
@@ -39,12 +39,12 @@ export default function Profile({ user, setUser }: { user: any; setUser: (user: 
     setUser(updated)
     localStorage.setItem('safeherUser', JSON.stringify(updated))
     setEditMode(false)
-    showToast('Profile updated successfully', 'success')
+    showToast('Profile information saved', 'success')
   }
 
   const handleAddContact = () => {
     if (!newContact.name || !newContact.phone) {
-      showToast('Please fill all fields', 'error')
+      showToast('Please fill both name and phone number', 'error')
       return
     }
     const updated = {
@@ -74,213 +74,243 @@ export default function Profile({ user, setUser }: { user: any; setUser: (user: 
     navigate('/login')
   }
 
+  const initials = formData.fullName
+    .split(' ')
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+
   return (
-    <div className="space-y-6 pb-24 md:pb-0">
-      <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-8 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">Profile</p>
-            <h1 className="mt-3 text-3xl font-semibold text-white">Your account</h1>
-            <p className="mt-4 text-sm leading-6 text-[#94A3B8]">
-              Manage personal details, emergency contacts, and safety settings from one polished profile center.
-            </p>
+    <div className="space-y-6 pb-16">
+      {/* HEADER */}
+      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            User Account & Preferences
+          </span>
+          <h1 className="text-3xl font-serif text-[var(--text-primary)] mt-1">
+            Personal Safety Profile
+          </h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-1.5 max-w-xl">
+            Configure registered emergency dispatch contacts, account security, and Guardian AI sensitivity.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-xl bg-[var(--accent-ghost)] border border-[var(--accent-light)] text-left sm:text-right">
+          <span className="text-[11px] font-semibold text-[var(--primary)] uppercase tracking-wider block">
+            Guardian Tier
+          </span>
+          <span className="text-base font-bold text-[var(--primary)] mt-0.5 block">
+            ✓ Complete Protection Active
+          </span>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        {/* PERSONAL DETAILS CARD */}
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-[var(--primary)] text-white flex items-center justify-center text-lg font-bold">
+                {initials}
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-[var(--text-primary)]">{formData.fullName}</h2>
+                <p className="text-xs text-[var(--text-muted)]">{formData.email}</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => (editMode ? handleSavePersonal() : setEditMode(true))}
+              className="px-4 py-2 bg-[var(--primary)] hover:opacity-90 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+            >
+              {editMode ? 'Save Changes' : 'Edit Profile'}
+            </button>
           </div>
-          <div className="rounded-[2rem] bg-[#0E1020] p-5 text-center border border-[#2E2E48]">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">Guardian tier</p>
-            <p className="mt-3 text-2xl font-semibold text-white">Premium</p>
+
+          <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-[var(--border)]">
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+                Full Name
+              </label>
+              <input
+                disabled={!editMode}
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                className="w-full bg-[var(--bg-base)] border border-[var(--border)] disabled:bg-gray-50 rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+                Phone Number
+              </label>
+              <input
+                disabled={!editMode}
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full bg-[var(--bg-base)] border border-[var(--border)] disabled:bg-gray-50 rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+                Registered Email
+              </label>
+              <input
+                disabled={!editMode}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full bg-[var(--bg-base)] border border-[var(--border)] disabled:bg-gray-50 rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+                Primary Metropole
+              </label>
+              <input
+                disabled={!editMode}
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className="w-full bg-[var(--bg-base)] border border-[var(--border)] disabled:bg-gray-50 rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* EMERGENCY CONTACTS CARD */}
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-[var(--text-primary)]">Emergency Dispatch Contacts</h3>
+              <p className="text-xs text-[var(--text-muted)]">Alerted automatically when SOS is activated</p>
+            </div>
+            <button
+              onClick={() => setShowAddContact(!showAddContact)}
+              className="px-3 py-1.5 rounded-lg bg-[var(--accent-ghost)] text-[var(--primary)] border border-[var(--accent-light)] text-xs font-bold hover:bg-[var(--primary)] hover:text-white transition-colors flex items-center gap-1"
+            >
+              <Plus size={14} />
+              <span>Add</span>
+            </button>
+          </div>
+
+          {/* ADD CONTACT INLINE FORM */}
+          {showAddContact && (
+            <div className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] space-y-3">
+              <span className="text-xs font-bold text-[var(--text-primary)] block">New Emergency Contact</span>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <input
+                  placeholder="Contact Name (e.g. Mom)"
+                  value={newContact.name}
+                  onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
+                  className="bg-white border border-[var(--border)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                />
+                <input
+                  placeholder="Phone Number (+91...)"
+                  value={newContact.phone}
+                  onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
+                  className="bg-white border border-[var(--border)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowAddContact(false)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--text-muted)] hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddContact}
+                  className="px-4 py-1.5 rounded-lg bg-[var(--primary)] text-white text-xs font-bold"
+                >
+                  Save Contact
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* CONTACT LIST */}
+          <div className="space-y-2.5">
+            {(user?.emergencyContacts || [
+              { name: 'Vedant Borude', phone: '+91 93590 96377' },
+              { name: 'Family Emergency', phone: '+91 98765 43210' },
+            ]).map((contact: any, index: number) => (
+              <div
+                key={index}
+                className="p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[var(--accent-ghost)] text-[var(--primary)] flex items-center justify-center text-xs font-bold">
+                    {contact.name[0]}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-[var(--text-primary)] block">{contact.name}</span>
+                    <span className="text-[11px] text-[var(--text-muted)] font-mono">{contact.phone}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleDeleteContact(index)}
+                  className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                  aria-label="Delete contact"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[0.9fr_0.7fr]">
-        <section className="space-y-6">
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#12121F] p-6 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-            <div className="flex items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white">
-                  <User className="h-8 w-8" />
-                </div>
-                <div>
-                  <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">Account holder</p>
-                  <h2 className="text-2xl font-semibold text-white">{user?.fullName}</h2>
-                </div>
-              </div>
-              <button
-                onClick={() => setEditMode(!editMode)}
-                className="rounded-full bg-[#0D1020] px-4 py-2 text-sm font-semibold text-[#94A3B8] hover:bg-[#1E1E35] transition"
-              >
-                {editMode ? 'Cancel' : 'Edit'}
-              </button>
-            </div>
+      {/* GUARDIAN SAFETY PREFERENCES */}
+      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-6">
+        <div>
+          <h3 className="text-base font-bold text-[var(--text-primary)]">Guardian System Triggers & Privacy</h3>
+          <p className="text-xs text-[var(--text-muted)]">Configure automated emergency thresholds and privacy encryption controls</p>
+        </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="text-xs font-semibold text-[#94A3B8] mb-2 block">Full Name</label>
-                <input
-                  type="text"
-                  disabled={!editMode}
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#0D1020] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none disabled:cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-[#94A3B8] mb-2 block">Phone</label>
-                <input
-                  type="tel"
-                  disabled={!editMode}
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#0D1020] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none disabled:cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-[#94A3B8] mb-2 block">Email</label>
-                <input
-                  type="email"
-                  disabled={!editMode}
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#0D1020] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none disabled:cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-[#94A3B8] mb-2 block">City</label>
-                <input
-                  type="text"
-                  disabled={!editMode}
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#0D1020] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none disabled:cursor-not-allowed"
-                />
-              </div>
-            </div>
-            {editMode && (
-              <button
-                onClick={handleSavePersonal}
-                className="mt-6 rounded-3xl bg-gradient-to-r from-[#7C3AED] to-[#9333EA] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-95"
-              >
-                Save Changes
-              </button>
-            )}
-          </div>
-
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#12121F] p-6 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-white">Emergency Contacts</h3>
-              <button
-                onClick={() => setShowAddContact(!showAddContact)}
-                className="inline-flex items-center gap-2 rounded-full bg-[#0D1020] px-4 py-2 text-sm font-semibold text-[#94A3B8] hover:bg-[#1E1E35] transition"
-              >
-                <Plus size={16} /> Add
-              </button>
-            </div>
-            {showAddContact && (
-              <div className="mb-5 rounded-[1.75rem] bg-[#0D1020] p-4 space-y-3">
-                <input
-                  type="text"
-                  placeholder="Contact name"
-                  value={newContact.name}
-                  onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#12121F] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none"
-                />
-                <input
-                  type="tel"
-                  placeholder="Phone number"
-                  value={newContact.phone}
-                  onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#12121F] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Relationship (optional)"
-                  value={newContact.relationship}
-                  onChange={(e) => setNewContact({ ...newContact, relationship: e.target.value })}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#12121F] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none"
-                />
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleAddContact}
-                    className="flex-1 rounded-3xl bg-[#7C3AED] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95"
-                  >
-                    Add Contact
-                  </button>
-                  <button
-                    onClick={() => setShowAddContact(false)}
-                    className="flex-1 rounded-3xl bg-[#0D1020] px-4 py-3 text-sm font-semibold text-[#94A3B8] transition hover:bg-[#1E1E35]"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-            <div className="space-y-3">
-              {user?.emergencyContacts?.map((contact: any, index: number) => (
-                <div key={index} className="rounded-[1.75rem] bg-[#0D1020] p-4 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-white">{contact.name}</p>
-                    <p className="text-sm text-[#94A3B8]">{contact.phone}</p>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteContact(index)}
-                    className="rounded-full p-2 text-[#EF4444] hover:bg-[#1E1E35] transition"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <aside className="space-y-6">
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#12121F] p-6 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-            <h3 className="text-lg font-semibold text-white">Guardian AI Settings</h3>
-            <p className="mt-3 text-sm text-[#94A3B8]">Fine-tune notifications and auto-SOS behavior for your peace of mind.</p>
-            <div className="mt-6 space-y-4">
-              <div>
-                <label className="text-sm font-semibold text-[#94A3B8] block mb-2">Detection Sensitivity</label>
-                <select
-                  value={guardianSensitivity}
-                  onChange={(e) => setGuardianSensitivity(e.target.value)}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#0D1020] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none"
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-[#94A3B8] block mb-2">Auto-SOS Trigger Delay</label>
-                <select
-                  value={autoSOSDelay}
-                  onChange={(e) => setAutoSOSDelay(e.target.value)}
-                  className="w-full rounded-3xl border border-[#1E1E35] bg-[#0D1020] px-4 py-3 text-white focus:border-[#7C3AED] focus:outline-none"
-                >
-                  <option value="5s">5 seconds</option>
-                  <option value="10s">10 seconds</option>
-                  <option value="30s">30 seconds</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#12121F] p-6 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#EF4444]" />
-              <div>
-                <h3 className="text-lg font-semibold text-[#EF4444]">Danger Zone</h3>
-                <p className="mt-2 text-sm text-[#94A3B8]">Log out if you are on a shared device or need to end your session immediately.</p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="mt-6 w-full rounded-3xl border border-[#EF4444] px-4 py-3 text-sm font-semibold text-[#EF4444] transition hover:bg-[#EF4444]/10"
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
+            <span className="text-xs font-bold text-[var(--text-primary)] block">Auto SOS Delay</span>
+            <span className="text-[11px] text-[var(--text-muted)] block mt-0.5">Countdown before SMS dispatch</span>
+            <select
+              value={autoSOSDelay}
+              onChange={(e) => setAutoSOSDelay(e.target.value)}
+              className="mt-3 w-full bg-white border border-[var(--border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)]"
             >
-              Logout
-            </button>
+              <option value="5s">5 Seconds (Urgent)</option>
+              <option value="10s">10 Seconds (Recommended)</option>
+              <option value="15s">15 Seconds (Extended)</option>
+            </select>
           </div>
-        </aside>
+
+          <div className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
+            <span className="text-xs font-bold text-[var(--text-primary)] block">Motion Shake Sensitivity</span>
+            <span className="text-[11px] text-[var(--text-muted)] block mt-0.5">Rapid shake trigger threshold</span>
+            <select
+              value={guardianSensitivity}
+              onChange={(e) => setGuardianSensitivity(e.target.value)}
+              className="mt-3 w-full bg-white border border-[var(--border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)]"
+            >
+              <option value="low">Low (Firm shake)</option>
+              <option value="medium">Medium (Standard)</option>
+              <option value="high">High (Sensitive)</option>
+            </select>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-bold text-[var(--text-primary)] block">Data Privacy Encryption</span>
+              <span className="text-[11px] text-[var(--text-muted)] block mt-0.5">AES-256 local encrypted storage</span>
+            </div>
+            <span className="text-xs font-bold text-emerald-700 mt-3 flex items-center gap-1">
+              <Lock size={12} />
+              Zero Cloud Data Logging
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -1,108 +1,56 @@
-"use client";
+'use client'
 
-import {
-  Battery,
-  Wifi,
-  Mic,
-  MapPin,
-  Activity,
-  Smartphone,
-} from "lucide-react";
+import { Battery, Wifi, Mic, MapPin, Activity, Smartphone } from 'lucide-react'
 
 const sensors = [
-  {
-    icon: Activity,
-    title: "Accelerometer",
-    status: "Active",
-    color: "text-green-400",
-  },
-  {
-    icon: MapPin,
-    title: "GPS",
-    status: "Tracking",
-    color: "text-blue-400",
-  },
-  {
-    icon: Mic,
-    title: "Microphone",
-    status: "Listening",
-    color: "text-purple-400",
-  },
-  {
-    icon: Wifi,
-    title: "Internet",
-    status: "Connected",
-    color: "text-cyan-400",
-  },
-  {
-    icon: Battery,
-    title: "Battery",
-    status: "82%",
-    color: "text-yellow-400",
-  },
-  {
-    icon: Smartphone,
-    title: "Emergency Mode",
-    status: "Standby",
-    color: "text-pink-400",
-  },
-];
+  { icon: Activity, title: 'Accelerometer Sensor', status: 'Active (Normal)', color: 'text-emerald-700', bg: 'bg-emerald-50' },
+  { icon: MapPin, title: 'GPS Location Lock', status: 'High Precision', color: 'text-blue-700', bg: 'bg-blue-50' },
+  { icon: Mic, title: 'Voice Keyword Listener', status: 'Armed (Background)', color: 'text-[var(--primary)]', bg: 'bg-teal-50' },
+  { icon: Wifi, title: 'Cloud Relay Connection', status: 'Connected (4G/5G)', color: 'text-teal-700', bg: 'bg-teal-50' },
+  { icon: Battery, title: 'Device Battery Level', status: '82% Optimal', color: 'text-emerald-700', bg: 'bg-emerald-50' },
+  { icon: Smartphone, title: 'Emergency Shake Mode', status: 'Active (3x Shake)', color: 'text-purple-700', bg: 'bg-purple-50' },
+]
 
 export default function SensorPanel() {
   return (
-    <div className="mt-10 bg-[#11111A] border border-[#202030] rounded-2xl p-8">
-
-      <div className="flex items-center justify-between mb-8">
-
+    <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-5">
+      <div className="flex items-center justify-between">
         <div>
-          <p className="uppercase tracking-[4px] text-xs text-gray-500">
-            Live Sensors
-          </p>
-
-          <h2 className="text-3xl font-bold mt-2">
-            Device Monitoring
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            Hardware Telemetry
+          </span>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mt-0.5">
+            Active Device Sensors
           </h2>
         </div>
-
-        <span className="bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-sm font-semibold">
-          LIVE
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+          All Sensors Online
         </span>
-
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
         {sensors.map((sensor, index) => {
-          const Icon = sensor.icon;
-
+          const Icon = sensor.icon
           return (
             <div
               key={index}
-              className="bg-[#191925] rounded-xl border border-[#2A2A3A] p-5 hover:border-purple-500 transition"
+              className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex items-center justify-between"
             >
-              <div className="flex justify-between items-center">
-
-                <Icon
-                  size={30}
-                  className={sensor.color}
-                />
-
-                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-lg ${sensor.bg} flex items-center justify-center ${sensor.color}`}>
+                  <Icon size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-[var(--text-primary)]">{sensor.title}</h3>
+                  <p className="text-[11px] text-[var(--text-muted)] mt-0.5">{sensor.status}</p>
+                </div>
               </div>
-
-              <h3 className="text-lg font-semibold mt-5">
-                {sensor.title}
-              </h3>
-
-              <p className={`${sensor.color} mt-2 font-medium`}>
-                {sensor.status}
-              </p>
-
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             </div>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

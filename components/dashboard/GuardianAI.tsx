@@ -1,262 +1,149 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import GuardianTimeline from "./GuardianTimeline"
-import SensorPanel from "./SensorPanel";
-import AIRecommendation from "./AIRecommendation";
-import CyberSafetyScanner from "./CyberSafetyScanner";
-import FakeLinkDetector from "./FakeLinkDetector";
+import { useState } from 'react'
+import GuardianTimeline from './GuardianTimeline'
+import SensorPanel from './SensorPanel'
+import AIRecommendation from './AIRecommendation'
+import CyberSafetyScanner from './CyberSafetyScanner'
+import FakeLinkDetector from './FakeLinkDetector'
 import {
-  Shield,
-  Activity,
-  MapPin,
-  Phone,
-  AlertTriangle,
-  Mic,
-  CheckCircle,
-} from "lucide-react";
+  Shield, Activity, MapPin, Phone, AlertTriangle,
+  Mic, CheckCircle2, Radio,
+} from 'lucide-react'
 
 export default function GuardianAI() {
-  const [guardian, setGuardian] = useState(true);
+  const [guardian, setGuardian] = useState(true)
 
   return (
-    <div className="p-8 bg-[#06060A] min-h-screen text-white">
-
-      {/* Heading */}
-
-      <div className="flex justify-between items-center mb-8">
-
+    <div className="space-y-8 pb-16">
+      {/* HEADER */}
+      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="uppercase tracking-[6px] text-xs text-gray-500">
-            Guardian AI
-          </p>
-
-          <h1 className="text-5xl font-bold mt-2">
-            Smart Protection Center
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            Autonomous Protection Engine
+          </span>
+          <h1 className="text-3xl font-serif text-[var(--text-primary)] mt-1">
+            Guardian AI Command Center
           </h1>
-
-          <p className="text-gray-400 mt-3">
-            AI continuously monitors your safety and automatically reacts during
-            emergencies.
+          <p className="text-sm text-[var(--text-secondary)] mt-1.5 max-w-xl">
+            Continuously monitors sensor telemetry, route trajectory, and ambient risk triggers in the background.
           </p>
         </div>
 
         <button
           onClick={() => setGuardian(!guardian)}
-          className={`px-6 py-3 rounded-full font-semibold transition ${
+          className={`px-5 py-3 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 ${
             guardian
-              ? "bg-green-500 text-white"
-              : "bg-red-500 text-white"
+              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300'
           }`}
         >
-          {guardian ? "Guardian ON" : "Guardian OFF"}
+          <span className={`w-2 h-2 rounded-full ${guardian ? 'bg-white animate-ping' : 'bg-gray-400'}`}></span>
+          <span>{guardian ? 'Guardian Armed' : 'Guardian Paused'}</span>
         </button>
-       
       </div>
 
-      {/* Status Cards */}
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-
-        <div className="bg-[#11111A] border border-[#202030] rounded-2xl p-6">
-
-          <Shield className="text-purple-400 mb-4" size={34} />
-
-          <p className="text-gray-400">Guardian Status</p>
-
-          <h2 className="text-3xl font-bold mt-2">
-            {guardian ? "ACTIVE" : "OFF"}
-          </h2>
-
-        </div>
-
-        <div className="bg-[#11111A] border border-[#202030] rounded-2xl p-6">
-
-          <Activity className="text-green-400 mb-4" size={34} />
-
-          <p className="text-gray-400">Motion Detection</p>
-
-          <h2 className="text-3xl font-bold mt-2">
-            Enabled
-          </h2>
-
-        </div>
-
-        <div className="bg-[#11111A] border border-[#202030] rounded-2xl p-6">
-
-          <MapPin className="text-orange-400 mb-4" size={34} />
-
-          <p className="text-gray-400">Unsafe Zone Detection</p>
-
-          <h2 className="text-3xl font-bold mt-2">
-            Live
-          </h2>
-
-        </div>
-
-        <div className="bg-[#11111A] border border-[#202030] rounded-2xl p-6">
-
-          <Phone className="text-pink-500 mb-4" size={34} />
-
-          <p className="text-gray-400">Emergency Contacts</p>
-
-          <h2 className="text-3xl font-bold mt-2">
-            3 Saved
-          </h2>
-
-        </div>
-
+      {/* STATUS METRICS GRID */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            icon: Shield,
+            label: 'System Status',
+            value: guardian ? 'ACTIVE' : 'PAUSED',
+            badge: guardian ? 'Armed' : 'Standby',
+            color: guardian ? 'text-emerald-700' : 'text-gray-500',
+            bg: guardian ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200',
+          },
+          {
+            icon: Activity,
+            label: 'Motion Detection',
+            value: 'Monitoring',
+            badge: 'Normal',
+            color: 'text-[var(--primary)]',
+            bg: 'bg-teal-50 text-teal-700 border-teal-200',
+          },
+          {
+            icon: MapPin,
+            label: 'Geofence Tracker',
+            value: 'Corridor Lock',
+            badge: 'Live',
+            color: 'text-blue-700',
+            bg: 'bg-blue-50 text-blue-700 border-blue-200',
+          },
+          {
+            icon: Phone,
+            label: 'Auto Dispatch Relay',
+            value: 'Standby',
+            badge: 'Ready',
+            color: 'text-purple-700',
+            bg: 'bg-purple-50 text-purple-700 border-purple-200',
+          },
+        ].map((item) => {
+          const Icon = item.icon
+          return (
+            <div key={item.label} className="bg-white border border-[var(--border)] rounded-2xl p-5 shadow-card">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)]">
+                  <Icon size={18} />
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${item.bg}`}>
+                  {item.badge}
+                </span>
+              </div>
+              <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider block">
+                {item.label}
+              </span>
+              <p className="text-lg font-bold text-[var(--text-primary)] mt-1">{item.value}</p>
+            </div>
+          )
+        })}
       </div>
 
-      {/* AI Monitoring */}
+      {/* LIVE SENSORS & AI ANALYSIS */}
+      <SensorPanel />
+      <AIRecommendation />
+      <GuardianTimeline />
 
-      <div className="mt-10 bg-[#11111A] border border-[#202030] rounded-2xl p-8">
+      {/* CYBER & SCANNER INTEGRATIONS */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <CyberSafetyScanner />
+        <FakeLinkDetector />
+      </div>
 
-        <div className="flex items-center gap-3">
-
-          <Activity className="text-green-400" />
-
-          <h2 className="text-3xl font-bold">
-            Live Guardian Monitoring
+      {/* EMERGENCY DISPATCH WORKFLOW EXPLAINER */}
+      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-6">
+        <div>
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            Automated Protocol
+          </span>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mt-1">
+            Autonomous Emergency Escalation Workflow
           </h2>
-
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
+            Guardian AI handles escalation in sequenced tiers if user is incapacitated or in urgent distress.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mt-8">
-
-          <div className="bg-[#191925] rounded-xl p-6">
-
-            <CheckCircle className="text-green-500 mb-3"/>
-
-            <h3 className="text-xl font-semibold">
-              Motion Detection
-            </h3>
-
-            <p className="text-gray-400 mt-2">
-              User is moving normally.
-            </p>
-
-          </div>
-
-          <div className="bg-[#191925] rounded-xl p-6">
-
-            <MapPin className="text-yellow-400 mb-3"/>
-
-            <h3 className="text-xl font-semibold">
-              Current Area
-            </h3>
-
-            <p className="text-gray-400 mt-2">
-              Koregaon Park • Medium Risk
-            </p>
-
-          </div>
-
-          <div className="bg-[#191925] rounded-xl p-6">
-
-            <Mic className="text-purple-400 mb-3"/>
-
-            <h3 className="text-xl font-semibold">
-              Voice Monitoring
-            </h3>
-
-            <p className="text-gray-400 mt-2">
-              Listening for "Help Me"
-            </p>
-
-          </div>
-
-          <div className="bg-[#191925] rounded-xl p-6">
-
-            <AlertTriangle className="text-red-500 mb-3"/>
-
-            <h3 className="text-xl font-semibold">
-              Fall Detection
-            </h3>
-
-            <p className="text-gray-400 mt-2">
-              No abnormal activity detected.
-            </p>
-
-          </div>
-
+        <div className="grid gap-3 sm:grid-cols-5">
+          {[
+            { step: '01', title: 'Telemetry Anomaly', desc: 'Sudden deceleration, fall or 3x shake detected.' },
+            { step: '02', title: 'Silent Query', desc: 'Voice prompt checks if you are safe.' },
+            { step: '03', title: '10s Timer', desc: 'Countdown starts for user override cancellation.' },
+            { step: '04', title: 'Location Ping', desc: 'Live GPS lock sent to emergency contacts.' },
+            { step: '05', title: 'Relay Dispatch', desc: 'Police 112 bridge & automated SMS executed.' },
+          ].map((flow, i) => (
+            <div key={flow.step} className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex flex-col justify-between space-y-3">
+              <span className="w-7 h-7 rounded-lg bg-[var(--accent-ghost)] border border-[var(--accent-light)] text-[var(--primary)] text-xs font-bold flex items-center justify-center">
+                {flow.step}
+              </span>
+              <div>
+                <h4 className="text-xs font-bold text-[var(--text-primary)]">{flow.title}</h4>
+                <p className="text-[11px] text-[var(--text-muted)] mt-1 leading-relaxed">{flow.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
-
       </div>
-      {/* Guardian Timeline */}
-
-<div className="mt-10">
-  <GuardianTimeline />
-</div>
-<SensorPanel />
-<AIRecommendation />
-<CyberSafetyScanner />
-<FakeLinkDetector />
-
-      {/* Emergency Flow */}
-
-      <div className="mt-10 bg-[#11111A] border border-[#202030] rounded-2xl p-8">
-
-        <h2 className="text-3xl font-bold mb-6">
-          AI Emergency Workflow
-        </h2>
-
-        <div className="space-y-5">
-
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
-              1
-            </div>
-
-            <p>
-              Detect unusual inactivity or sudden fall.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
-              2
-            </div>
-
-            <p>
-              AI asks: <b>"Are you safe?"</b>
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
-              3
-            </div>
-
-            <p>
-              Waits 10 seconds for response.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
-              4
-            </div>
-
-            <p>
-              Sends Live Location to Emergency Contacts.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center">
-              5
-            </div>
-
-            <p>
-              Automatically activates SOS and emergency SMS.
-            </p>
-          </div>
-
-        </div>
-
-      </div>
-
     </div>
-  );
+  )
 }

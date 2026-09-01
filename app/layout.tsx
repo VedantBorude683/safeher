@@ -1,11 +1,18 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Sora, JetBrains_Mono } from 'next/font/google'
+import { Inter, Sora, JetBrains_Mono, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600'] })
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 const sora = Sora({ subsets: ['latin'], weight: ['400', '600', '700'] })
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'] })
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  variable: '--font-instrument-serif',
+})
+
 
 export const metadata: Metadata = {
   title: 'SafeHer AI - Women Safety Platform',
@@ -27,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.className} ${sora.className} ${jetbrainsMono.className}`}>
+    <html lang="en" className={`${inter.className} ${sora.className} ${jetbrainsMono.className} ${instrumentSerif.variable}`}>
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

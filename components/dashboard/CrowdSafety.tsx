@@ -1,469 +1,302 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-
+import { useState } from 'react'
 import {
-  Shield,
-  MapPin,
-  AlertTriangle,
-  Lightbulb,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+  Shield, MapPin, AlertTriangle, Lightbulb, ShieldCheck, Users,
+  Plus, CheckCircle2, X, MessageSquare,
+} from 'lucide-react'
 
 export default function CrowdSafety() {
   const [reports, setReports] = useState([
-  {
-    icon: "🚨",
-    title: "Harassment Report",
-    location: "FC Road",
-    time: "09:35 PM",
-    color: "text-red-400",
-  },
-  {
-    icon: "💡",
-    title: "Street Light Failure",
-    location: "JM Road",
-    time: "09:28 PM",
-    color: "text-yellow-400",
-  },
-  {
-    icon: "🚧",
-    title: "Road Accident",
-    location: "MG Road",
-    time: "09:16 PM",
-    color: "text-orange-400",
-  },
-  {
-    icon: "🚓",
-    title: "Police Patrol",
-    location: "Shivajinagar",
-    time: "09:05 PM",
-    color: "text-green-400",
-  },
-]);
+    {
+      icon: '🚨',
+      title: 'Harassment Report',
+      location: 'FC Road',
+      time: '09:35 PM',
+      badgeColor: 'bg-red-50 text-red-700 border-red-200',
+    },
+    {
+      icon: '💡',
+      title: 'Street Light Failure',
+      location: 'JM Road',
+      time: '09:28 PM',
+      badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+    },
+    {
+      icon: '🚧',
+      title: 'Road Blockage / Accident',
+      location: 'MG Road',
+      time: '09:16 PM',
+      badgeColor: 'bg-orange-50 text-orange-700 border-orange-200',
+    },
+    {
+      icon: '🚓',
+      title: 'Active Police Patrol Beat',
+      location: 'Shivajinagar',
+      time: '09:05 PM',
+      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    },
+  ])
 
-const [score, setScore] = useState(74);
+  const [score, setScore] = useState(74)
+  const [showForm, setShowForm] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
-const [showForm, setShowForm] = useState(false);
-const [showSuccess, setShowSuccess] = useState(false);
+  const [type, setType] = useState('Harassment')
+  const [location, setLocation] = useState('')
+  const [description, setDescription] = useState('')
 
-const [type, setType] = useState("Harassment");
-const [location, setLocation] = useState("");
-const [description, setDescription] = useState("");
   return (
-    <div className="space-y-8">
-
-      {/* Header */}
-
-      <div className="bg-[#11111A] border border-[#2A2A40] rounded-3xl p-8">
-
-        <div className="flex justify-between items-center">
-
-          <div>
-
-            <p className="uppercase tracking-[4px] text-xs text-gray-500">
-              Community Intelligence
-            </p>
-
-            <h1 className="text-5xl font-bold mt-2">
-              Crowd Safety Dashboard
-            </h1>
-
-            <p className="text-gray-400 mt-3">
-              AI analyzes anonymous community reports to estimate the safety of nearby areas.
-            </p>
-
-          </div>
-
-          <MapPin
-            size={55}
-            className="text-purple-500"
-          />
-
+    <div className="space-y-6 pb-16">
+      {/* HEADER */}
+      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            Community Intelligence
+          </span>
+          <h1 className="text-3xl font-serif text-[var(--text-primary)] mt-1">
+            Crowd Safety Intelligence
+          </h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-1.5 max-w-xl">
+            Real-time community crowd density monitoring and anonymous safety alerts.
+          </p>
         </div>
 
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-5 py-3 bg-[var(--primary)] hover:opacity-90 text-white rounded-xl text-xs font-semibold transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          <Plus size={16} />
+          <span>Report Safety Incident</span>
+        </button>
       </div>
 
-      {/* Safety Score */}
-
+      {/* SAFETY SCORE & AI SUMMARY */}
       <div className="grid lg:grid-cols-3 gap-6">
-
-        <div className="bg-[#11111A] rounded-3xl border border-[#2A2A40] p-8 flex flex-col items-center">
-
-          <div className="w-40 h-40 rounded-full border-[12px] border-purple-600 flex items-center justify-center">
-
-            <div>
-
-             <h2 className="text-5xl font-bold text-center">
-  {score}
-</h2>
-
-              <p className="text-center text-gray-400 mt-2">
-                /100
-              </p>
-
-            </div>
-
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-8 shadow-card flex flex-col items-center justify-center text-center">
+          <div className="w-36 h-36 rounded-full border-[10px] border-[var(--primary)] flex flex-col items-center justify-center bg-[var(--accent-ghost)]">
+            <span className="text-4xl font-bold font-mono text-[var(--text-primary)]">{score}</span>
+            <span className="text-xs text-[var(--text-muted)] font-medium">/ 100</span>
           </div>
 
-          <p className="mt-6 text-xl text-yellow-400 font-semibold">
-            Medium Safe
-          </p>
-
+          <span className="mt-5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Moderate-High Safety Index
+          </span>
+          <p className="text-xs text-[var(--text-muted)] mt-2">Aggregated from 140+ real-time node pings.</p>
         </div>
 
-        <div className="lg:col-span-2 bg-[#11111A] rounded-3xl border border-[#2A2A40] p-8">
-
-          <h2 className="text-3xl font-bold">
-            AI Summary
-          </h2>
-
-          <p className="text-gray-400 mt-5 leading-8">
-
-            AI has calculated the Crowd Safety Score using anonymous community reports,
-            police patrol frequency, lighting conditions,
-            recent incident reports and crowd density.
-
-          </p>
-
-          <div className="grid grid-cols-2 gap-5 mt-8">
-
-            <div className="bg-[#191925] rounded-xl p-5">
-
-              <Users className="text-green-400 mb-3"/>
-
-              <h3 className="font-semibold">
-                Crowd Density
-              </h3>
-
-              <p className="text-green-400 mt-2">
-                High
-              </p>
-
-            </div>
-
-            <div className="bg-[#191925] rounded-xl p-5">
-
-              <ShieldCheck className="text-blue-400 mb-3"/>
-
-              <h3 className="font-semibold">
-                Police Patrol
-              </h3>
-
-              <p className="text-green-400 mt-2">
-                Active
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-{/* AI Recommendation */}
-
-<div className="bg-[#11111A] border border-[#2A2A40] rounded-3xl p-8">
-
-  <div className="flex items-center gap-3 mb-6">
-
-    <div className="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-2xl">
-      🤖
-    </div>
-
-    <div>
-
-      <p className="uppercase tracking-[4px] text-xs text-gray-500">
-        AI Analysis
-      </p>
-
-      <h2 className="text-3xl font-bold">
-        Safety Recommendations
-      </h2>
-
-    </div>
-
-  </div>
-
-  <div className="grid md:grid-cols-2 gap-5">
-
-    <div className="bg-[#191925] rounded-2xl p-5">
-
-      <h3 className="text-green-400 font-semibold">
-        ✅ Recommended
-      </h3>
-
-      <ul className="mt-4 space-y-3 text-gray-300">
-
-        <li>• Use Safe Route Navigation after 9 PM</li>
-
-        <li>• Share Live Location with trusted contacts</li>
-
-        <li>• Walk through well-lit streets</li>
-
-        <li>• Keep Guardian AI enabled</li>
-
-      </ul>
-
-    </div>
-
-    <div className="bg-[#191925] rounded-2xl p-5">
-
-      <h3 className="text-red-400 font-semibold">
-        ⚠ AI Warning
-      </h3>
-
-      <p className="text-gray-300 mt-4 leading-7">
-
-        Crowd Safety Score has decreased due to recent
-        harassment reports and poor street lighting
-        in nearby areas.
-
-      </p>
-
-      <div className="mt-6 inline-flex bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-full">
-
-        Risk Level : Medium
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-<div className="mt-8 bg-[#11111A] border border-[#2A2A40] rounded-3xl p-8">
-
-  <div className="flex justify-between items-center mb-8">
-
-  <div>
-    <p className="uppercase tracking-[4px] text-xs text-gray-500">
-      Incident Timeline
-    </p>
-
-    <h2 className="text-3xl font-bold mt-2">
-      Community Reports
-    </h2>
-  </div>
-
-  <button
-  onClick={() => setShowForm(true)}
-  className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-semibold"
->
-  + Report Incident
-</button>
-
-</div>
-
-    <div>
-     
-    
-    </div>
-
-   
-
-  </div>
-
-  <div className="space-y-5">
-
-    {reports.map((report, index) => (
-
-      <div
-        key={index}
-        className="bg-[#191925] rounded-2xl border border-[#2A2A40] p-5 flex justify-between items-center"
-      >
-
-        <div className="flex gap-4">
-
-          <div className="text-3xl">
-            {report.icon}
-          </div>
-
+        <div className="lg:col-span-2 bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card flex flex-col justify-between">
           <div>
-
-            <h3 className={`text-xl font-semibold ${report.color}`}>
-              {report.title}
-            </h3>
-
-            <p className="text-gray-400">
-              📍 {report.location}
+            <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+              Environmental Telemetry
+            </span>
+            <h2 className="text-xl font-bold text-[var(--text-primary)] mt-1">
+              Live Area Safety Overview
+            </h2>
+            <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">
+              Synthesizes pedestrian volume, active storefronts, illumination metrics, and police vehicle locations to provide continuous ambient safety scoring.
             </p>
 
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              <div className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
+                <Users className="text-emerald-600 mb-2" size={20} />
+                <span className="text-xs font-bold text-[var(--text-primary)] block">Pedestrian Density</span>
+                <span className="text-xs font-semibold text-emerald-700 mt-0.5 block">High (Active Street)</span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
+                <ShieldCheck className="text-[var(--primary)] mb-2" size={20} />
+                <span className="text-xs font-bold text-[var(--text-primary)] block">Patrol Beat Frequency</span>
+                <span className="text-xs font-semibold text-[var(--primary)] mt-0.5 block">Active Patrols Present</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* AI RECOMMENDATIONS */}
+      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-4">
+        <h3 className="text-base font-bold text-[var(--text-primary)]">
+          Safety Recommendations & Directives
+        </h3>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="p-4 rounded-xl bg-[var(--accent-ghost)] border border-[var(--accent-light)]">
+            <span className="text-xs font-bold text-[var(--primary)] block mb-2">
+              ✓ Recommended Actions
+            </span>
+            <ul className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+              <li>• Prefer main commercial boulevard over isolated transit connectors</li>
+              <li>• Keep Guardian AI background monitoring armed while in transit</li>
+              <li>• Share live transit link with contacts if moving after 10:00 PM</li>
+            </ul>
           </div>
 
+          <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200">
+            <span className="text-xs font-bold text-amber-800 block mb-2">
+              ⚠ Caution Notice
+            </span>
+            <p className="text-xs text-amber-900 leading-relaxed">
+              Recent crowd reports note a streetlight outage on western connector junction. Redirection along JM Road recommended.
+            </p>
+          </div>
         </div>
-
-        <div className="text-gray-500">
-          {report.time}
-        </div>
-
       </div>
 
-    ))}
-
-  </div>
-{showForm && (
-  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-
-    <div className="bg-[#11111A] w-[500px] rounded-3xl border border-[#2A2A40] p-8">
-
-      <h2 className="text-3xl font-bold mb-6">
-        Report Incident
-      </h2>
-
-      <div className="space-y-5">
-
-        <div>
-
-          <label className="text-gray-400">
-            Type
-          </label>
-
-          <select
-            value={type}
-            onChange={(e)=>setType(e.target.value)}
-            className="mt-2 w-full bg-[#191925] rounded-xl p-3"
-          >
-            <option>Harassment</option>
-            <option>Street Light Failure</option>
-            <option>Road Accident</option>
-            <option>Suspicious Activity</option>
-          </select>
-
+      {/* INCIDENT TIMELINE */}
+      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-bold text-[var(--text-primary)]">
+            Recent Community Reports
+          </h3>
+          <span className="text-xs text-[var(--text-muted)] font-medium">Verified by community</span>
         </div>
 
-        <div>
+        <div className="space-y-2.5">
+          {reports.map((report, index) => (
+            <div
+              key={index}
+              className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{report.icon}</span>
+                <div>
+                  <span className="text-xs font-bold text-[var(--text-primary)] block">{report.title}</span>
+                  <span className="text-[11px] text-[var(--text-muted)] flex items-center gap-1 mt-0.5">
+                    <MapPin size={11} />
+                    {report.location}
+                  </span>
+                </div>
+              </div>
 
-          <label className="text-gray-400">
-            Location
-          </label>
-
-          <input
-            value={location}
-            onChange={(e)=>setLocation(e.target.value)}
-            placeholder="FC Road"
-            className="mt-2 w-full bg-[#191925] rounded-xl p-3"
-          />
-
+              <div className="text-right">
+                <span className="text-[11px] text-[var(--text-muted)] font-mono">{report.time}</span>
+              </div>
+            </div>
+          ))}
         </div>
-
-        <div>
-
-          <label className="text-gray-400">
-            Description
-          </label>
-
-          <textarea
-            value={description}
-            onChange={(e)=>setDescription(e.target.value)}
-            placeholder="Someone was following me..."
-            className="mt-2 w-full bg-[#191925] rounded-xl p-3 h-28"
-          />
-
-        </div>
-
-        <div className="flex justify-end gap-4">
-
-          <button
-            onClick={()=>setShowForm(false)}
-            className="px-5 py-3 rounded-xl bg-gray-700"
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={()=>{
-              setReports([
-                {
-                  icon:
-                    type==="Harassment" ? "🚨" :
-                    type==="Street Light Failure" ? "💡" :
-                    type==="Road Accident" ? "🚧" : "👤",
-
-                  title:type,
-
-                  location,
-
-                  time:"Just Now",
-
-                  color:
-                    type==="Harassment" ? "text-red-400" :
-                    type==="Street Light Failure" ? "text-yellow-400" :
-                    type==="Road Accident" ? "text-orange-400" :
-                    "text-blue-400",
-                },
-
-                ...reports
-              ]);
-
-              setScore(prev=>Math.max(prev-3,40));
-
-              setShowForm(false);
-              setShowSuccess(true);
-
-setTimeout(() => {
-  setShowSuccess(false);
-}, 2500);
-
-              setLocation("");
-
-              setDescription("");
-
-            }}
-            className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-semibold"
-          >
-            Submit Report
-          </button>
-
-        </div>
-
       </div>
 
+      {/* REPORT MODAL */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-md rounded-2xl border border-[var(--border)] p-6 sm:p-8 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-[var(--text-primary)]">Report Community Incident</h2>
+              <button
+                onClick={() => setShowForm(false)}
+                className="w-8 h-8 rounded-lg hover:bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-muted)]"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+                  Incident Classification
+                </label>
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  className="w-full bg-[var(--bg-base)] border border-[var(--border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none"
+                >
+                  <option>Harassment</option>
+                  <option>Street Light Failure</option>
+                  <option>Road Blockage / Accident</option>
+                  <option>Suspicious Activity</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+                  Location Landmark
+                </label>
+                <input
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="e.g. FC Road near Goodluck Chowk"
+                  className="w-full bg-[var(--bg-base)] border border-[var(--border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+                  Brief Context
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Provide context to help community safety scores..."
+                  rows={3}
+                  className="w-full bg-[var(--bg-base)] border border-[var(--border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="px-4 py-2.5 rounded-xl border border-[var(--border)] text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (!location.trim()) return
+                    setReports([
+                      {
+                        icon:
+                          type === 'Harassment'
+                            ? '🚨'
+                            : type === 'Street Light Failure'
+                            ? '💡'
+                            : type === 'Road Blockage / Accident'
+                            ? '🚧'
+                            : '👤',
+                        title: type,
+                        location: location,
+                        time: 'Just Now',
+                        badgeColor: 'bg-teal-50 text-teal-700 border-teal-200',
+                      },
+                      ...reports,
+                    ])
+                    setScore((prev) => Math.max(prev - 2, 40))
+                    setShowForm(false)
+                    setShowSuccess(true)
+                    setTimeout(() => setShowSuccess(false), 2500)
+                    setLocation('')
+                    setDescription('')
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-[var(--primary)] hover:opacity-90 text-white text-xs font-bold shadow-xs"
+                >
+                  Submit Report
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS CONFIRMATION MODAL */}
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-emerald-200 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl space-y-4">
+            <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+              <CheckCircle2 size={32} />
+            </div>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">Report Transmitted</h2>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              Thank you for contributing. AI safety models have updated local crowd risk metrics.
+            </p>
+            <button
+              onClick={() => setShowSuccess(false)}
+              className="w-full py-2.5 bg-[var(--primary)] text-white rounded-xl text-xs font-bold hover:opacity-90"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-
-  </div>
-)}
-{showSuccess && (
-
-<div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-
-  <div className="bg-[#11111A] border border-green-500 rounded-3xl p-10 w-[430px] text-center shadow-2xl">
-
-    <div className="text-6xl mb-4">
-      ✅
-    </div>
-
-    <h2 className="text-3xl font-bold text-green-400">
-      Report Submitted
-    </h2>
-
-    <p className="text-gray-400 mt-4 leading-7">
-
-      Thank you for contributing to community safety.
-
-      <br />
-
-      AI has updated the Crowd Safety Score
-      using your report.
-
-    </p>
-
-    <button
-      onClick={() => setShowSuccess(false)}
-      className="mt-8 bg-green-600 hover:bg-green-700 px-8 py-3 rounded-xl font-semibold"
-    >
-      OK
-    </button>
-
-  </div>
-
-</div>
-
-)}
-</div>
-   
-    
-  );
+  )
 }

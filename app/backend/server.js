@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = 5000;
+const PORT = 8080;
 
 const TEXTBEE_API_URL =
   "https://api.textbee.dev/api/v1/gateway/send-sms";

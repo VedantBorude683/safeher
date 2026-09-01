@@ -81,7 +81,18 @@ export default function VoiceSOS({ user }: { user: any }) {
 
         navigator.geolocation.getCurrentPosition(
           resolve,
-          reject,
+          (geoError: GeolocationPositionError) => {
+            /*
+             * GeolocationPositionError has non-enumerable properties
+             * (code, message) which log as `{}`. Wrap it in a real Error
+             * so the message is always visible in the console.
+             */
+            const err = new Error(
+              `GPS Error (code ${geoError.code}): ${geoError.message}`
+            )
+            ;(err as Error & { geoCode: number }).geoCode = geoError.code
+            reject(err)
+          },
           {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -104,7 +115,7 @@ export default function VoiceSOS({ user }: { user: any }) {
       console.log('🚨 Sending SOS to backend...')
 
       const response = await fetch(
-        'http://localhost:5000/api/sos',
+        'http://localhost:8080/api/sos',
         {
           method: 'POST',
 
@@ -398,9 +409,14 @@ export default function VoiceSOS({ user }: { user: any }) {
           'success'
         )
       } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : String(error)
+
         console.error(
           '❌ GPS Error:',
-          error
+          message
         )
 
         showToast(
@@ -455,361 +471,225 @@ export default function VoiceSOS({ user }: { user: any }) {
   */
 
   return (
-    <div className="space-y-6 pb-24 md:pb-0">
-
+    <div className="space-y-6 pb-16">
       {/* HEADER */}
-
-      <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-8 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
-          <div>
-
-            <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">
-              Emergency SOS
-            </p>
-
-            <h1 className="mt-3 text-3xl font-semibold text-white md:text-4xl">
-              Voice-Activated Assistance
-            </h1>
-
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-[#94A3B8]">
-              Instantly alert your trusted contacts and responders using your voice or one tap.
-            </p>
-
-          </div>
-
-          <div className="rounded-[2rem] bg-[#0E1020] p-5 text-center border border-[#2E2E48]">
-
-            <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">
-              Ready state
-            </p>
-
-            <p className="mt-3 text-2xl font-semibold text-white">
-
-              {sosState === 'idle'
-                ? 'Standby'
-                : sosState === 'activated'
-                ? 'SOS Active'
-                : 'Alert Sent'}
-
-            </p>
-
-          </div>
-
+      <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            Emergency Response
+          </span>
+          <h1 className="text-3xl font-serif text-[var(--text-primary)] mt-1">
+            Voice SOS Dispatch
+          </h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-1.5 max-w-xl">
+            Instantly alert your trusted contacts with live GPS tracking and activate emergency relays.
+          </p>
         </div>
 
+        <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-left sm:text-right">
+          <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider block">
+            System State
+          </span>
+          <span className="text-lg font-bold text-[var(--text-primary)] mt-0.5 block">
+            {sosState === 'idle'
+              ? '🟢 Ready (Standby)'
+              : sosState === 'activated'
+              ? '🟡 Countdown Active'
+              : '🔴 SOS Dispatched'}
+          </span>
+        </div>
       </div>
 
       {/* ================================================= */}
       {/* IDLE */}
       {/* ================================================= */}
-
       {sosState === 'idle' && (
-
-        <div className="grid gap-6 lg:grid-cols-[0.95fr_0.55fr]">
-
-          {/* SOS BUTTON */}
-
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-8 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)] text-center">
-
-            <div className="mx-auto flex h-52 w-52 items-center justify-center rounded-full bg-gradient-to-br from-[#EF4444] to-[#DC2626] shadow-lg shadow-[#EF4444]/20">
-
-              <Mic2 className="w-20 h-20 text-white" />
-
+        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+          {/* SOS BUTTON CARD */}
+          <div className="bg-white border border-[var(--border)] rounded-2xl p-8 shadow-card text-center flex flex-col items-center justify-center min-h-[400px]">
+            <div className="relative mb-6">
+              <span className="absolute -inset-4 rounded-full bg-red-100/60 animate-ping opacity-75 pointer-events-none"></span>
+              <button
+                onClick={handleActivate}
+                disabled={isLoading}
+                className="relative w-44 h-44 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-xl shadow-red-500/25 flex flex-col items-center justify-center transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Mic2 className="w-14 h-14 mb-1" />
+                <span className="text-base font-bold tracking-wide uppercase">
+                  {isLoading ? 'Locating...' : 'Hold SOS'}
+                </span>
+                <span className="text-[10px] opacity-80 mt-0.5">or say trigger phrase</span>
+              </button>
             </div>
 
-            <h2 className="mt-8 text-3xl font-semibold text-white">
-              Activate SOS
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">
+              Instant 1-Tap Emergency Trigger
             </h2>
-
-            <p className="mt-4 text-sm leading-6 text-[#94A3B8]">
-              Press the button to capture your GPS location and alert your emergency contact.
+            <p className="mt-2 text-xs text-[var(--text-secondary)] max-w-md leading-relaxed">
+              Tapping will lock your GPS location, begin a 10-second confirmation timer, and notify all emergency contacts via SMS and relay.
             </p>
-
-            <button
-              onClick={handleActivate}
-              disabled={isLoading}
-              className="mt-10 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#EF4444] to-[#DC2626] px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-[#EF4444]/20 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-
-              {isLoading
-                ? 'Getting Location...'
-                : 'Activate SOS'}
-
-            </button>
-
           </div>
 
-          {/* CONTACTS */}
-
-          <div className="space-y-4">
-
-            <div className="rounded-[2rem] border border-[#1E1E35] bg-[#12121F] p-6">
-
-              <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">
-                Emergency Contacts
-              </p>
-
-              <div className="mt-5 space-y-3">
-
-                {emergencyContacts.map(
-                  (contact, index) => (
-
-                    <div
-                      key={index}
-                      className="rounded-[1.5rem] bg-[#0D1020] p-4 flex items-center justify-between gap-3"
-                    >
-
-                      <div>
-
-                        <p className="font-semibold text-white">
-                          {contact.name}
-                        </p>
-
-                        <p className="text-sm text-[#94A3B8]">
-                          {contact.phone}
-                        </p>
-
-                      </div>
-
-                      <Phone className="w-5 h-5 text-[#7C3AED]" />
-
-                    </div>
-
-                  )
-                )}
-
+          {/* CONTACTS & TIPS */}
+          <div className="space-y-6">
+            <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">
+                  Emergency Contacts ({emergencyContacts.length})
+                </h3>
+                <span className="text-[11px] font-semibold text-[var(--primary)]">Synced</span>
               </div>
 
+              <div className="space-y-3">
+                {emergencyContacts.map((contact, index) => (
+                  <div
+                    key={index}
+                    className="p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-[var(--text-primary)]">{contact.name}</p>
+                      <p className="text-xs text-[var(--text-muted)] font-mono mt-0.5">{contact.phone}</p>
+                    </div>
+                    <div className="w-8 h-8 rounded-lg bg-[var(--accent-ghost)] text-[var(--primary)] flex items-center justify-center">
+                      <Phone size={15} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="rounded-[2rem] border border-[#1E1E35] bg-[#12121F] p-6">
-
-              <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">
-                Safety tip
+            <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card">
+              <h3 className="text-sm font-bold text-[var(--text-primary)] mb-2">Safety Protocol Guidance</h3>
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                If in immediate physical danger, stay along open public roads. The automated system shares live continuous GPS updates until cancelled.
               </p>
-
-              <p className="mt-4 text-sm leading-6 text-[#94A3B8]">
-                Keep your phone accessible and move toward a public or well-lit area while help is being contacted.
-              </p>
-
+              <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between">
+                <span className="text-xs font-semibold text-[var(--text-muted)]">Police Emergency</span>
+                <button
+                  onClick={call112}
+                  className="px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-xs font-bold transition-colors"
+                >
+                  Direct 112 Call
+                </button>
+              </div>
             </div>
-
           </div>
-
         </div>
-
       )}
 
       {/* ================================================= */}
       {/* ACTIVATED */}
       {/* ================================================= */}
-
       {sosState === 'activated' && (
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-8 sm:p-12 shadow-card text-center max-w-2xl mx-auto space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+            SOS Countdown Active
+          </div>
 
-        <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-8 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)] text-center">
-
-          <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">
-            SOS Active
-          </p>
-
-          <div className="mt-6 text-8xl font-bold text-[#EF4444]">
+          <div className="text-8xl sm:text-9xl font-bold font-mono text-red-600 tracking-tight animate-pulse">
             {countdown}
           </div>
 
-          <p className="mt-4 text-sm text-[#94A3B8]">
-            Emergency SMS will be sent automatically when the countdown reaches zero.
+          <p className="text-sm text-[var(--text-secondary)] max-w-md mx-auto">
+            Emergency SMS and coordinates will be transmitted automatically when timer reaches zero.
           </p>
 
-          {/* STATUS */}
-
-          <div className="mt-8 space-y-3">
-
-            {statusItems.map(
-              (item, index) => (
-
-                <div
-                  key={index}
-                  className="flex items-center gap-3 rounded-[1.5rem] bg-[#0D1020] p-4 text-left text-[#F1F5F9]"
-                >
-
-                  <CheckCircle2 className="w-5 h-5 text-[#10B981]" />
-
-                  <span>
-                    {item}
-                  </span>
-
-                </div>
-
-              )
-            )}
-
+          {/* STATUS SEQUENCE */}
+          <div className="space-y-2.5 max-w-md mx-auto text-left">
+            {statusItems.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] text-xs font-semibold text-[var(--text-primary)]"
+              >
+                <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                <span>{item}</span>
+              </div>
+            ))}
           </div>
 
           {/* LOCATION */}
-
           {location && (
-
-            <div className="mt-6 rounded-[1.5rem] bg-[#0D1020] p-5 text-left">
-
-              <div className="flex items-center gap-3">
-
-                <MapPin className="w-5 h-5 text-[#7C3AED]" />
-
-                <div>
-
-                  <p className="font-semibold text-white">
-                    GPS Location Captured
-                  </p>
-
-                  <p className="mt-1 text-xs text-[#94A3B8]">
-
-                    {location.latitude.toFixed(6)}
-                    {', '}
-                    {location.longitude.toFixed(6)}
-
-                  </p>
-
-                </div>
-
+            <div className="p-4 rounded-xl bg-[var(--accent-ghost)] border border-[var(--accent-light)] text-left max-w-md mx-auto flex items-center gap-3">
+              <MapPin size={18} className="text-[var(--primary)] shrink-0" />
+              <div className="text-xs">
+                <span className="font-bold text-[var(--primary)] block">GPS Coordinates Locked</span>
+                <span className="text-[var(--text-secondary)] font-mono">
+                  {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+                </span>
               </div>
-
             </div>
-
           )}
 
           {/* CANCEL */}
-
-          <button
-            onClick={resetSOS}
-            className="mt-8 rounded-full border border-[#EF4444] px-8 py-3 text-sm font-semibold text-[#EF4444] hover:bg-[#EF4444]/10 transition"
-          >
-            Cancel SOS
-          </button>
-
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={resetSOS}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl border border-red-300 text-red-700 hover:bg-red-50 text-sm font-bold transition-colors"
+            >
+              Cancel SOS (False Alarm)
+            </button>
+            <button
+              onClick={call112}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors shadow-sm"
+            >
+              Call 112 Immediately
+            </button>
+          </div>
         </div>
-
       )}
 
       {/* ================================================= */}
       {/* SENT */}
       {/* ================================================= */}
-
       {sosState === 'sent' && (
-
-        <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-8 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)] text-center">
-
-          {/* SUCCESS */}
-
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#10B981]/15 text-[#10B981]">
-
-            <CheckCircle2 className="w-10 h-10" />
-
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-8 sm:p-12 shadow-card text-center max-w-2xl mx-auto space-y-6">
+          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto">
+            <CheckCircle2 size={36} />
           </div>
 
-          <h2 className="text-3xl font-semibold text-white">
-            SOS Alert Sent
+          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
+            Emergency Alerts Dispatched
           </h2>
-
-          <p className="mt-4 text-sm leading-6 text-[#94A3B8]">
-            Your emergency SMS has been sent automatically with your current GPS location.
+          <p className="text-sm text-[var(--text-secondary)] max-w-md mx-auto">
+            Your emergency SMS and live tracking link have been transmitted to all registered contacts.
           </p>
 
-          {/* DETAILS */}
-
-          <div className="mt-8 space-y-4 text-left">
-
-            {/* SMS */}
-
-            <div className="flex items-center justify-between rounded-[1.5rem] bg-[#0D1020] p-4 text-sm text-[#F1F5F9]">
-
-              <div className="flex items-center gap-3">
-
-                <Phone className="w-5 h-5 text-[#7C3AED]" />
-
-                <span>
-                  Emergency SMS
-                </span>
-
+          <div className="space-y-3 max-w-md mx-auto text-left">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] text-xs">
+              <div className="flex items-center gap-2.5 font-medium text-[var(--text-primary)]">
+                <Phone size={15} className="text-[var(--primary)]" />
+                <span>Emergency Contact SMS</span>
               </div>
-
-              <span className="font-semibold text-[#10B981]">
-                Sent
-              </span>
-
+              <span className="font-bold text-emerald-700">✓ Delivered</span>
             </div>
 
-            {/* LOCATION */}
-
-            <div className="flex items-center justify-between rounded-[1.5rem] bg-[#0D1020] p-4 text-sm text-[#F1F5F9]">
-
-              <div className="flex items-center gap-3">
-
-                <MapPin className="w-5 h-5 text-[#7C3AED]" />
-
-                <span>
-                  Location Shared
-                </span>
-
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] text-xs">
+              <div className="flex items-center gap-2.5 font-medium text-[var(--text-primary)]">
+                <MapPin size={15} className="text-[var(--primary)]" />
+                <span>Live Google Maps Tracking</span>
               </div>
-
-              <span className="font-semibold text-[#10B981]">
-                GPS
-              </span>
-
+              <span className="font-bold text-emerald-700">✓ Active</span>
             </div>
-
-            {/* AUDIO */}
-
-            <div className="flex items-center justify-between rounded-[1.5rem] bg-[#0D1020] p-4 text-sm text-[#F1F5F9]">
-
-              <div className="flex items-center gap-3">
-
-                <Mic2 className="w-5 h-5 text-[#7C3AED]" />
-
-                <span>
-                  Audio Recording
-                </span>
-
-              </div>
-
-              <span className="font-semibold text-white">
-                Ready
-              </span>
-
-            </div>
-
           </div>
 
-          {/* CALL 112 */}
-
-          <button
-            onClick={call112}
-            className="mt-8 w-full flex items-center justify-center gap-2 rounded-full bg-[#EF4444] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-
-            <Phone className="w-5 h-5" />
-
-            Call 112
-
-          </button>
-
-          {/* SAFE */}
-
-          <button
-            onClick={resetSOS}
-            className="mt-4 rounded-full bg-[#10B981] px-8 py-3 text-sm font-semibold text-white hover:bg-[#059669] transition"
-          >
-
-            I'm Safe Now
-
-          </button>
-
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={call112}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors shadow-sm flex items-center justify-center gap-2"
+            >
+              <Phone size={16} />
+              <span>Call 112 Police Relay</span>
+            </button>
+            <button
+              onClick={resetSOS}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition-colors"
+            >
+              I Am Safe Now
+            </button>
+          </div>
         </div>
-
       )}
-
     </div>
   )
 }

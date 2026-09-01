@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Brain, Mic2, Map, Building2, AlertCircle, CheckCircle2, Shield } from 'lucide-react'
+import {
+  Brain, Mic2, Map, Building2, AlertCircle, CheckCircle2, Shield,
+  ArrowUpRight, ArrowDownRight, Radio, Bell, ArrowRight, Activity, Users,
+} from 'lucide-react'
 
 export default function DashboardHome({ user }: { user: any }) {
   const navigate = useNavigate()
@@ -10,181 +13,298 @@ export default function DashboardHome({ user }: { user: any }) {
   const [riskLevel] = useState(35)
 
   const quickActions = [
-    { icon: Brain, label: 'Risk Map', path: '/dashboard/risk-map', color: 'from-[#7C3AED] to-[#9333EA]' },
-    { icon: Mic2, label: 'Voice SOS', path: '/dashboard/sos', color: 'from-[#EC4899] to-[#F43F5E]' },
-    { icon: Map, label: 'Safe Route', path: '/dashboard/safe-route', color: 'from-[#10B981] to-[#14B8A6]' },
-    { icon: Building2, label: 'Gov Services', path: '/dashboard/gov', color: 'from-[#F59E0B] to-[#F97316]' },
+    {
+      icon: Mic2,
+      label: 'Voice SOS',
+      desc: 'Hands-free voice emergency trigger',
+      path: '/dashboard/sos',
+      badge: 'Urgent',
+      badgeColor: 'bg-red-50 text-red-700 border-red-200',
+      iconBg: 'bg-red-50 text-red-600',
+    },
+    {
+      icon: Map,
+      label: 'Safe Route Finder',
+      desc: 'Well-lit, high-crowd corridors',
+      path: '/dashboard/safe-route',
+      badge: 'Popular',
+      badgeColor: 'bg-teal-50 text-teal-700 border-teal-200',
+      iconBg: 'bg-teal-50 text-teal-700',
+    },
+    {
+      icon: Brain,
+      label: 'Area Risk Map',
+      desc: 'Real-time street safety scoring',
+      path: '/dashboard/risk-map',
+      badge: 'Live',
+      badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
+      iconBg: 'bg-blue-50 text-blue-700',
+    },
+    {
+      icon: Users,
+      label: 'Crowd Safety Heatmap',
+      desc: 'Active foot-traffic monitoring',
+      path: '/dashboard/crowd',
+      badge: 'Live',
+      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      iconBg: 'bg-emerald-50 text-emerald-700',
+    },
   ]
 
   const alerts = [
-    { time: '10:30 PM', message: 'High risk zone detected near MG Road' },
-    { time: '8:15 PM', message: 'You\'ve been stationary 8 min in a caution zone' },
-    { time: '7:45 PM', message: 'SOS test sent to Rahul Kumar ✓' },
+    { time: '10:30 PM', message: 'High risk zone detected near MG Road', type: 'caution' },
+    { time: '8:15 PM', message: "Stationary for 8 min in a caution zone", type: 'warning' },
+    { time: '7:45 PM', message: 'SOS readiness check passed with contacts', type: 'success' },
   ]
 
   const stats = [
-    { label: 'Active Guards', value: '24', change: '+8%', accent: 'text-[#10B981]' },
-    { label: 'Safe Routes', value: '12', change: '+14%', accent: 'text-[#7C3AED]' },
-    { label: 'Incident Alerts', value: '3', change: '-5%', accent: 'text-[#F59E0B]' },
+    { label: 'Active Guardians', value: '24', change: '+8%', positive: true },
+    { label: 'Verified Safe Routes', value: '12', change: '+14%', positive: true },
+    { label: 'Incident Alerts Today', value: '3', change: '-5%', positive: false },
   ]
 
   const getRiskBadge = (level: number) => {
-    if (level < 30) return { text: 'SAFE', icon: '🟢', color: 'text-[#10B981]' }
-    if (level < 60) return { text: 'MEDIUM', icon: '🟡', color: 'text-[#F59E0B]' }
-    return { text: 'HIGH', icon: '🔴', color: 'text-[#EF4444]' }
+    if (level < 30) {
+      return { text: 'LOW RISK', color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200', bar: 'bg-emerald-600' }
+    }
+    if (level < 60) {
+      return { text: 'MODERATE RISK', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200', bar: 'bg-amber-500' }
+    }
+    return { text: 'HIGH RISK', color: 'text-red-700', bg: 'bg-red-50', border: 'border-red-200', bar: 'bg-red-600' }
   }
 
   const badge = getRiskBadge(riskLevel)
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Morning' : hour < 18 ? 'Afternoon' : 'Evening'
+  const firstName = user?.fullName?.split(' ')[0] || 'Priya'
 
   return (
-    <div className="space-y-8 pb-24 md:pb-0">
-      <div className="grid gap-6 lg:grid-cols-[1.7fr_1fr]">
-        <section className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-8 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">Premium Insights</p>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Good {greeting}, {user?.fullName?.split(' ')[0] || 'Guardian'}
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#94A3B8]">
-                Your AI safety dashboard gives you instant visibility into alerts, route safety, and help resources — all in one premium control room.
+    <div className="space-y-8 pb-16">
+      {/* ────────────────────────────────────────────────────────
+          TOP HERO OVERVIEW CARD
+      ──────────────────────────────────────────────────────── */}
+      <section className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-ghost)] border border-[var(--accent-light)] text-[var(--primary)] text-xs font-semibold uppercase tracking-wider mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse"></span>
+              Live Safety Status
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-serif text-[var(--text-primary)] tracking-tight">
+              Good {greeting}, {firstName}
+            </h1>
+            <p className="mt-2 text-sm text-[var(--text-secondary)] max-w-xl leading-relaxed">
+              Your AI safety guardian is active. Live risk monitoring, crowd mapping, and 1-tap SOS assistance are ready.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] text-left sm:text-right">
+              <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Coverage</span>
+              <span className="text-xl font-bold text-[var(--text-primary)]">24/7 Monitored</span>
+              <span className="text-xs text-[var(--primary)] font-medium block mt-0.5">Contacts synced</span>
+            </div>
+            <button
+              onClick={() => navigate('/dashboard/sos')}
+              className="px-5 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2"
+            >
+              <Mic2 size={16} />
+              <span>Voice SOS Ready</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Quick KPI Stat Strip */}
+        <div className="mt-8 pt-6 border-t border-[var(--border)] grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {stats.map((stat) => (
+            <div key={stat.label} className="p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
+              <span className="text-xs font-medium text-[var(--text-muted)] block">{stat.label}</span>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-[var(--text-primary)] font-sans">{stat.value}</span>
+                <span
+                  className={`inline-flex items-center text-xs font-semibold ${
+                    stat.positive ? 'text-emerald-700' : 'text-amber-700'
+                  }`}
+                >
+                  {stat.positive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+                  {stat.change}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ────────────────────────────────────────────────────────
+          MAIN GRID: CURRENT RISK + GUARDIAN + RECENT ALERTS
+      ──────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Current Risk Intelligence Widget */}
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Current Risk Level</span>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mt-1">Area Scoring</h3>
+              </div>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${badge.bg} ${badge.color} ${badge.border}`}>
+                {badge.text}
+              </span>
+            </div>
+
+            <div className="mt-6 p-4 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
+              <div className="flex justify-between items-center text-xs font-medium text-[var(--text-secondary)] mb-2">
+                <span>Risk Index</span>
+                <span className="text-base font-bold text-[var(--text-primary)]">{riskLevel} / 100</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-[var(--border)] overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-500 ${badge.bar}`} style={{ width: `${riskLevel}%` }} />
+              </div>
+              <p className="text-[11px] text-[var(--text-muted)] mt-2">Calculated from lighting, crowd density & past police reports.</p>
+            </div>
+
+            <div className="mt-4 p-4 rounded-xl bg-[var(--accent-ghost)] border border-[var(--accent-light)]">
+              <span className="text-xs font-bold text-[var(--primary)] block mb-1">Recommended Action</span>
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                Stay along the main corridor. Safe Route navigation is recommended if moving after 9:00 PM.
               </p>
             </div>
-            <div className="rounded-3xl border border-[#2E2E48] bg-[#0E1020]/80 p-4 text-right">
-              <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">Coverage</p>
-              <p className="mt-3 text-3xl font-semibold text-white">24/7 Protection</p>
-              <p className="mt-2 text-sm text-[#94A3B8]">Instant alerts, smart routes, and legal support ready.</p>
-            </div>
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {stats.map((stat) => (
-              <div key={stat.label} className="rounded-3xl border border-[#1E1E35] bg-[#0F1020] p-5">
-                <p className="text-sm text-[#94A3B8] uppercase tracking-[0.2em]">{stat.label}</p>
-                <p className="mt-4 text-3xl font-semibold text-white">{stat.value}</p>
-                <p className={`mt-2 text-sm ${stat.accent}`}>{stat.change}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+          <button
+            onClick={() => navigate('/dashboard/risk-map')}
+            className="mt-6 w-full py-2.5 bg-white hover:bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl text-xs font-semibold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5"
+          >
+            <span>Explore Area Risk Map</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
 
-        <aside className="space-y-6">
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-6 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-            <div className="flex items-center justify-between gap-4">
+        {/* Guardian AI Engine Widget */}
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-[#94A3B8]">Current Risk</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">{badge.text}</h2>
+                <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Automated Shield</span>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mt-1">Guardian AI</h3>
               </div>
-              <div className={`rounded-2xl bg-white/5 px-4 py-2 text-sm font-semibold ${badge.color}`}>{badge.icon}</div>
-            </div>
-            <div className="mt-6 space-y-4">
-              <div className="rounded-3xl bg-[#0D1020] p-5">
-                <div className="flex items-center justify-between text-sm text-[#94A3B8]">
-                  <span>Risk score</span>
-                  <span className="text-white text-xl font-semibold">{riskLevel}</span>
-                </div>
-                <div className="mt-4 h-2 rounded-full bg-[#151728] overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-[#7C3AED] to-[#EC4899]" style={{ width: `${riskLevel}%` }} />
-                </div>
-              </div>
-              <div className="rounded-3xl bg-[#0D1020] p-5">
-                <p className="text-sm text-[#94A3B8]">Recommended action</p>
-                <p className="mt-3 text-sm text-white">Activate Voice SOS when you're approaching a higher-risk area or traveling alone after dark.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-6 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">Guardian AI</p>
               <button
                 onClick={() => setGuardianActive(!guardianActive)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${guardianActive ? 'bg-[#7C3AED] text-white' : 'bg-[#1E1E35] text-[#94A3B8]'}`}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                  guardianActive
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-gray-100 text-gray-600 border border-gray-200'
+                }`}
               >
-                {guardianActive ? 'Activated' : 'Disabled'}
+                {guardianActive ? '✓ Armed' : 'Standby'}
               </button>
             </div>
-            <div className="mt-5 space-y-3 text-sm text-[#94A3B8]">
-              <div className="flex items-center gap-2 rounded-2xl bg-[#0D1020] p-4">
-                <CheckCircle2 size={16} className="text-[#10B981]" />
-                <span>Motion detection armed</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-[#0D1020] p-4">
-                <CheckCircle2 size={16} className="text-[#10B981]" />
-                <span>Safe zone monitoring enabled</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-[#0D1020] p-4">
-                <CheckCircle2 size={16} className="text-[#10B981]" />
-                <span>Emergency route suggestions ready</span>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
-        <section className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-8 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">Quick actions</p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">Stay ready in one tap</h2>
-            </div>
-            <div className="rounded-full bg-[#0F1020] px-4 py-2 text-sm text-[#94A3B8]">Fast & secure</div>
-          </div>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {quickActions.map((action, i) => {
-              const Icon = action.icon
-              return (
-                <button
-                  key={i}
-                  onClick={() => navigate(action.path)}
-                  className={`group rounded-[1.75rem] border border-[#1E1E35] bg-gradient-to-br ${action.color} p-5 text-left text-white shadow-lg shadow-[#000000]/20 transition hover:-translate-y-1`}
-                >
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-white/10 text-white shadow-sm">
-                    <Icon className="w-6 h-6" />
+            <div className="mt-6 space-y-2.5">
+              {[
+                { title: 'Motion & Shake Trigger', desc: 'Auto-activates SOS on 3 rapid shakes', active: true },
+                { title: 'Safe Corridor Tracker', desc: 'Alerts contacts if you deviate off course', active: true },
+                { title: 'Silent Check-in Timer', desc: 'Prompts confirmation every 30 mins late', active: true },
+              ].map((feature) => (
+                <div key={feature.title} className="p-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] flex items-start gap-3">
+                  <CheckCircle2 size={16} className="text-[var(--primary)] shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-xs font-semibold text-[var(--text-primary)] block">{feature.title}</span>
+                    <span className="text-[11px] text-[var(--text-muted)]">{feature.desc}</span>
                   </div>
-                  <p className="mt-5 text-lg font-semibold">{action.label}</p>
-                  <p className="mt-2 text-sm opacity-90">Open this module for more details.</p>
-                </button>
-              )
-            })}
-          </div>
-        </section>
-
-        <aside className="space-y-6">
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-6 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">Recent alerts</p>
-              <span className="rounded-full bg-[#161623] px-3 py-1 text-xs text-[#94A3B8]">Live</span>
-            </div>
-            <div className="mt-5 space-y-3">
-              {alerts.map((alert, index) => (
-                <div key={index} className="rounded-3xl bg-[#0D1020] p-4 border border-[#1E1E35]">
-                  <p className="text-sm font-semibold text-white">{alert.message}</p>
-                  <p className="mt-2 text-xs text-[#94A3B8]">{alert.time}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-[#1E1E35] bg-[#11121F] p-6 shadow-[0_35px_60px_-45px_rgba(16,24,40,0.8)]">
-            <p className="text-sm uppercase tracking-[0.3em] text-[#94A3B8]">Feature spotlight</p>
-            <h3 className="mt-4 text-xl font-semibold text-white">Voice SOS assistant</h3>
-            <p className="mt-3 text-sm leading-6 text-[#94A3B8]">
-              One-touch emergency alerts with trusted contacts and local response guidance. Keep it enabled for automatic assistance when you need it most.
-            </p>
-            <button
-              onClick={() => navigate('/dashboard/sos')}
-              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-[#7C3AED] to-[#EC4899] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95"
-            >
-              Open Voice SOS
-            </button>
+          <button
+            onClick={() => navigate('/dashboard/guardian')}
+            className="mt-6 w-full py-2.5 bg-white hover:bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl text-xs font-semibold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5"
+          >
+            <span>Configure Guardian Settings</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+
+        {/* Live Incident Alerts Feed */}
+        <div className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-card flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Real-time Feed</span>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mt-1">Live Alerts</h3>
+              </div>
+              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                Active
+              </span>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {alerts.map((alert, index) => (
+                <div key={index} className="p-3.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)]">
+                  <div className="flex items-center justify-between text-[11px] text-[var(--text-muted)] mb-1">
+                    <span className="font-mono">{alert.time}</span>
+                    <span className="font-medium text-[var(--primary)]">City Feed</span>
+                  </div>
+                  <p className="text-xs font-medium text-[var(--text-primary)] leading-relaxed">{alert.message}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </aside>
+
+          <div className="mt-6 p-3 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] flex items-center justify-between">
+            <span className="text-xs text-[var(--text-secondary)] font-medium">Auto-dispatch enabled</span>
+            <span className="text-xs font-bold text-[var(--primary)]">Police 112 Ready</span>
+          </div>
+        </div>
       </div>
+
+      {/* ────────────────────────────────────────────────────────
+          QUICK ACTIONS GRID
+      ──────────────────────────────────────────────────────── */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">Quick Safety Actions</h2>
+            <p className="text-xs text-[var(--text-secondary)]">Direct access to core protection modules</p>
+          </div>
+          <span className="text-xs font-semibold text-[var(--text-muted)]">4 Services Online</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {quickActions.map((action) => {
+            const Icon = action.icon
+            return (
+              <button
+                key={action.label}
+                id={`quick-action-${action.label.toLowerCase().replace(/\s+/g, '-')}`}
+                onClick={() => navigate(action.path)}
+                className="group p-5 bg-white hover:bg-[var(--bg-elevated)] border border-[var(--border)] hover:border-[var(--primary)] rounded-2xl text-left transition-all duration-150 shadow-card hover:-translate-y-0.5"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`w-10 h-10 rounded-xl ${action.iconBg} flex items-center justify-center transition-transform group-hover:scale-105`}>
+                    <Icon size={20} strokeWidth={2.2} />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${action.badgeColor}`}>
+                    {action.badge}
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
+                  {action.label}
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
+                  {action.desc}
+                </p>
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-[var(--primary)] opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span>Open module</span>
+                  <ArrowRight size={13} />
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </section>
     </div>
   )
 }

@@ -1,118 +1,68 @@
-"use client";
+'use client'
 
-import { Brain, ArrowRight, ShieldAlert } from "lucide-react";
+import { Brain, ArrowRight, ShieldAlert, CheckCircle2 } from 'lucide-react'
 
 export default function AIRecommendation() {
   return (
-    <div className="mt-10 bg-[#11111A] border border-[#202030] rounded-2xl p-8">
-
-      <div className="flex items-center gap-3 mb-8">
-
-        <Brain className="text-purple-400" size={32} />
-
+    <div className="bg-white border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-card space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <p className="uppercase tracking-[4px] text-xs text-gray-500">
-            Artificial Intelligence
-          </p>
-
-          <h2 className="text-3xl font-bold">
-            AI Recommendation
+          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+            Predictive Model Reasoning
+          </span>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mt-0.5">
+            AI Safety Recommendations
           </h2>
         </div>
-
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-[var(--accent-ghost)] text-[var(--primary)] border border-[var(--accent-light)]">
+          Real-time Engine
+        </span>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-
-        {/* Why Risk Increased */}
-
-        <div className="bg-[#191925] rounded-xl p-6 border border-[#2A2A3A]">
-
-          <h3 className="text-xl font-semibold mb-5">
-            Why Risk Increased?
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* WHY RISK CHANGED */}
+        <div className="p-5 rounded-xl bg-[var(--bg-base)] border border-[var(--border)] space-y-3">
+          <h3 className="text-sm font-bold text-[var(--text-primary)]">
+            Identified Environmental Factors
           </h3>
-
-          <ul className="space-y-4 text-gray-300">
-
-            <li>🌙 Night Time (10:45 PM)</li>
-
-            <li>💡 Poor Street Lighting</li>
-
-            <li>📉 Low Crowd Density</li>
-
-            <li>🚨 3 Previous Incidents Nearby</li>
-
-            <li>🚓 Police Patrol Frequency Low</li>
-
+          <ul className="space-y-2 text-xs text-[var(--text-secondary)]">
+            <li className="flex items-center gap-2">
+              <span>🌙</span> Night transit window (after 9:00 PM)
+            </li>
+            <li className="flex items-center gap-2">
+              <span>💡</span> Reduced municipal streetlight intensity on cross-streets
+            </li>
+            <li className="flex items-center gap-2">
+              <span>📉</span> Lower pedestrian frequency in secondary alleys
+            </li>
+            <li className="flex items-center gap-2">
+              <span>👮</span> Nearest verified police post 650m away
+            </li>
           </ul>
-
         </div>
 
-        {/* AI Recommendation */}
-
-        <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/30 border border-purple-500 rounded-xl p-6">
-
-          <div className="flex items-center gap-3 mb-5">
-
-            <ShieldAlert
-              className="text-yellow-400"
-              size={30}
-            />
-
-            <h3 className="text-xl font-semibold">
-              AI Recommendation
-            </h3>
-
+        {/* RECOMMENDED ACTIONS */}
+        <div className="p-5 rounded-xl bg-[var(--accent-ghost)] border border-[var(--accent-light)] space-y-3">
+          <div className="flex items-center gap-2 text-[var(--primary)]">
+            <ShieldAlert size={18} />
+            <h3 className="text-sm font-bold">Suggested User Precautions</h3>
           </div>
-
-          <div className="space-y-4">
-
-            <div className="flex items-center gap-3">
-
-              <ArrowRight className="text-green-400" />
-
-              <span>
-                Take FC Road instead of Lane 4
-              </span>
-
+          <div className="space-y-2 text-xs text-[var(--text-secondary)]">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={15} className="text-[var(--primary)] shrink-0" />
+              <span>Prioritize FC Road main arterial avenue</span>
             </div>
-
-            <div className="flex items-center gap-3">
-
-              <ArrowRight className="text-green-400" />
-
-              <span>
-                Enable Voice SOS
-              </span>
-
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={15} className="text-[var(--primary)] shrink-0" />
+              <span>Keep Voice SOS standby armed</span>
             </div>
-
-            <div className="flex items-center gap-3">
-
-              <ArrowRight className="text-green-400" />
-
-              <span>
-                Share Live Location with trusted contact
-              </span>
-
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={15} className="text-[var(--primary)] shrink-0" />
+              <span>Share live tracking token with trusted contacts</span>
             </div>
-
-            <div className="flex items-center gap-3">
-
-              <ArrowRight className="text-green-400" />
-
-              <span>
-                Estimated Safety Improvement +43%
-              </span>
-
-            </div>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
-  );
+  )
 }
